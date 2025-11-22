@@ -30,6 +30,29 @@ def init(
     # Initialize DB
     init_db()
     console.print("[green]Initialized SQLite database.[/green]")
+    
+    # Check if API keys are configured
+    console.print("\n[bold cyan]Checking API configuration...[/bold cyan]")
+    
+    # Load .env file if it exists
+    from dotenv import load_dotenv
+    load_dotenv()
+    
+    try:
+        from agentic_doc.config_manager import ConfigManager
+        manager = ConfigManager()
+        
+        if not manager.validate_config(silent=True):
+            console.print("\n[yellow]⚠️  API keys not configured yet.[/yellow]")
+            console.print("[cyan]👉 Run 'agentic-doc configure' to set up your AI provider and API key.[/cyan]")
+            console.print("\n[dim]Without API keys, you won't be able to generate documentation.[/dim]")
+        else:
+            console.print("[green]✓ API keys configured and ready![/green]")
+    except Exception as e:
+        console.print(f"[yellow]⚠️  Could not validate API configuration: {e}[/yellow]")
+        console.print("[cyan]👉 Run 'agentic-doc configure' to set up your API provider and API key.[/cyan]")
+
+
 
 @app.command()
 def scan(force: bool = typer.Option(False, help="Force re-scan of all files.")):

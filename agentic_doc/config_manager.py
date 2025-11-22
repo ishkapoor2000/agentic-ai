@@ -174,8 +174,12 @@ class ConfigManager:
         console.print(table)
         console.print()
     
-    def validate_config(self) -> bool:
-        """Validate current configuration."""
+    def validate_config(self, silent: bool = False) -> bool:
+        """Validate current configuration.
+        
+        Args:
+            silent: If True, don't print error messages (just return status)
+        """
         provider = self.config.model_provider
         
         if provider == "mock":
@@ -183,14 +187,17 @@ class ConfigManager:
         
         if provider == "openai":
             if not os.getenv("OPENAI_API_KEY"):
-                console.print("[red]✗ OpenAI API key not configured[/red]")
-                console.print("Run: agentic-doc configure")
+                if not silent:
+                    console.print("[red]✗ OpenAI API key not configured[/red]")
+                    console.print("Run: agentic-doc configure")
                 return False
         
         if provider == "gemini":
             if not os.getenv("GEMINI_API_KEY"):
-                console.print("[red]✗ Gemini API key not configured[/red]")
-                console.print("Run: agentic-doc configure")
+                if not silent:
+                    console.print("[red]✗ Gemini API key not configured[/red]")
+                    console.print("Run: agentic-doc configure")
                 return False
         
         return True
+```
