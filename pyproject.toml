@@ -1,5 +1,5 @@
 [project]
-name = "agentic-doc"
+name = "drishti-ai"
 version = "1.0.0"
 description = "AI-powered documentation generator for large codebases with interactive mindmap visualization."
 authors = [
@@ -31,9 +31,9 @@ dependencies = [
 requires-python = ">=3.10"
 
 [project.urls]
-Homepage = "https://github.com/ishkapoor2000/agentic-doc"
-Documentation = "https://github.com/ishkapoor2000/agentic-doc#readme"
-Repository = "https://github.com/ishkapoor2000/agentic-doc"
+Homepage = "https://github.com/ishkapoor2000/drishti-ai"
+Documentation = "https://github.com/ishkapoor2000/drishti-ai#readme"
+Repository = "https://github.com/ishkapoor2000/drishti-ai"
 
 [project.scripts]
 agentic-doc = "agentic_doc.cli:app"
