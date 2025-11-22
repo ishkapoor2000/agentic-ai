@@ -1,0 +1,28 @@
+{
+  "app.js": {
+    "animate": {}
+  },
+  "canvas.js": {
+    "InfiniteCanvas": {}
+  },
+  "docPanel.css": {},
+  "docPanel.js": {
+    "DocPanel": {}
+  },
+  "generate_doc.js": {
+    "and": {},
+    "parseFile": {},
+    "buildManifest": {}
+  },
+  "index.html": {},
+  "linkage.js": {
+    "Joint": {},
+    "Link": {},
+    "Motor": {},
+    "LinkageSystem": {}
+  },
+  "styles.css": {},
+  "ui.js": {
+    "UIController": {}
+  }
+}

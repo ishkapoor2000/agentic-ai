@@ -1,0 +1,446 @@
+/* ================================================
+   DESIGN SYSTEM - CSS VARIABLES
+   ================================================ */
+:root {
+    /* Color Palette - Deep Space Mindmap */
+    --color-bg-primary: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-bg-tertiary: #334155;
+
+    /* Glassmorphism */
+    --glass-bg: rgba(30, 41, 59, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+
+    /* Node Colors */
+    --color-node-file: #3b82f6;
+    --color-node-class: #f59e0b;
+    --color-node-function: #10b981;
+
+    /* Vibrant Accents */
+    --color-primary: #8b5cf6;
+    --color-primary-light: #a78bfa;
+    --color-primary-dark: #7c3aed;
+    --color-accent: #06b6d4;
+    --color-accent-glow: rgba(139, 92, 246, 0.4);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+    --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+
+    /* Text */
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+
+    /* Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Animation */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Border Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+}
+
+/* ================================================
+   RESET & BASE STYLES
+   ================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    overflow: hidden;
+    font-weight: var(--font-weight-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ================================================
+   LAYOUT
+   ================================================ */
+.app-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+}
+
+#canvas-container.panning {
+    cursor: grabbing;
+}
+
+#main-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ================================================
+   GLASSMORPHISM PANELS
+   ================================================ */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    padding: var(--space-lg);
+    animation: fadeInUp var(--transition-slow) ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================================================
+   TOOLBAR
+   ================================================ */
+.toolbar {
+    position: absolute;
+    top: var(--space-lg);
+    left: var(--space-lg);
+    width: 220px;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.toolbar-section {
+    margin-bottom: var(--space-lg);
+}
+
+.toolbar-title {
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.toolbar-divider {
+    height: 1px;
+    background: var(--glass-border);
+    margin: var(--space-lg) 0;
+}
+
+.tool-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+/* ================================================
+   BUTTONS
+   ================================================ */
+.tool-btn,
+.action-btn,
+.sim-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.tool-btn:hover,
+.action-btn:hover,
+.sim-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.tool-btn.active {
+    background: var(--gradient-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 15px var(--color-accent-glow);
+}
+
+.tool-btn svg,
+.action-btn svg,
+.sim-btn svg {
+    flex-shrink: 0;
+}
+
+.action-btn {
+    width: 100%;
+    justify-content: flex-start;
+    margin-bottom: var(--space-sm);
+}
+
+/* ================================================
+   SIMULATION CONTROLS
+   ================================================ */
+.sim-controls {
+    position: absolute;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    width: 240px;
+}
+
+.control-group {
+    margin-bottom: var(--space-md);
+}
+
+.sim-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.sim-btn.primary {
+    background: var(--gradient-primary);
+    border-color: var(--color-primary);
+}
+
+.control-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.speed-value {
+    color: var(--color-primary-light);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ================================================
+   SLIDER
+   ================================================ */
+.slider {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color-bg-tertiary);
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-primary-light);
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+}
+
+.slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* ================================================
+   INFO PANEL
+   ================================================ */
+.info-panel {
+    position: absolute;
+    bottom: var(--space-lg);
+    left: var(--space-lg);
+    min-width: 200px;
+}
+
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.info-value {
+    font-size: 1rem;
+    color: var(--color-primary-light);
+    font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+}
+
+.help-text {
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--glass-border);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
+kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family);
+    font-size: 0.6875rem;
+    color: var(--color-text-primary);
+}
+
+/* ================================================
+   WELCOME MESSAGE
+   ================================================ */
+.welcome-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    z-index: 1000;
+}
+
+.welcome-message.hidden {
+    display: none;
+}
+
+.welcome-message h1 {
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-bold);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: var(--space-md);
+}
+
+.welcome-message p {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-xl);
+}
+
+.welcome-steps {
+    text-align: left;
+    margin-bottom: var(--space-xl);
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) 0;
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: var(--font-weight-bold);
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.close-welcome {
+    padding: var(--space-md) var(--space-xl);
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: 0 4px 16px var(--color-accent-glow);
+}
+
+.close-welcome:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px var(--color-accent-glow);
+}
+
+/* ================================================
+   RESPONSIVE DESIGN
+   ================================================ */
+@media (max-width: 768px) {
+
+    .toolbar,
+    .sim-controls {
+        width: 180px;
+        padding: var(--space-md);
+    }
+
+    .info-panel {
+        min-width: 180px;
+        padding: var(--space-md);
+    }
+}
+
+.hidden {
+    display: none !important;
+}

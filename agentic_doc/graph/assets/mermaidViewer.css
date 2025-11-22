@@ -1,0 +1,25 @@
+/* mermaidViewer.css - styles for the Mermaid diagram side panel */
+.mermaid-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 30vw;
+    height: 100vh;
+    overflow-y: auto;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(12px);
+    color: #e0e0e0;
+    padding: 1rem;
+    box-sizing: border-box;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+/* hide initially if needed */
+.mermaid-panel.hidden {
+    transform: translateX(100%);
+}
+
+.mermaid-panel .error {
+    color: #ff6b6b;
+}

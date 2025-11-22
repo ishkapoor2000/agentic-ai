@@ -1,0 +1,55 @@
+/* Documentation Panel Styling */
+.doc-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 260px;
+    height: 100vh;
+    background: rgba(20, 20, 30, 0.85);
+    backdrop-filter: blur(12px);
+    color: #e0e0ff;
+    overflow-y: auto;
+    padding: 1rem;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.4);
+    font-family: 'Inter', sans-serif;
+    z-index: 1000;
+}
+
+.doc-panel h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #ffcc00;
+    text-align: center;
+}
+
+.doc-tree {
+    list-style: none;
+    padding-left: 1rem;
+    margin: 0;
+}
+
+.doc-node {
+    margin: 0.3rem 0;
+}
+
+.doc-label {
+    cursor: pointer;
+    display: inline-block;
+    transition: color 0.2s;
+}
+
+.doc-label:hover {
+    color: #ff99ff;
+}
+
+.doc-label.collapsible::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 4px;
+    transform: rotate(0deg);
+    transition: transform 0.2s;
+}
+
+.doc-node.expanded>.doc-label.collapsible::before {
+    transform: rotate(90deg);
+}

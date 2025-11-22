@@ -1,0 +1,12 @@
+{
+    "name": "linkage-visualizer",
+    "version": "1.0.0",
+    "description": "Mechanical linkage visualizer with documentation side panel",
+    "main": "index.html",
+    "scripts": {
+        "gen-doc": "node generate_doc.js"
+    },
+    "author": "",
+    "license": "MIT",
+    "dependencies": {}
+}

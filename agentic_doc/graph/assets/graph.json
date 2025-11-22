@@ -1,0 +1,999 @@
+{
+  "nodes": [
+    {
+      "id": "file_3",
+      "type": "file",
+      "label": "pyproject.toml",
+      "language": "toml",
+      "size": 540
+    },
+    {
+      "id": "file_18",
+      "type": "file",
+      "label": "agentic_doc/config.py",
+      "language": "py",
+      "size": 824
+    },
+    {
+      "id": "file_19",
+      "type": "file",
+      "label": "agentic_doc/cli.py",
+      "language": "py",
+      "size": 2977
+    },
+    {
+      "id": "file_20",
+      "type": "file",
+      "label": "agentic_doc/llm/core.py",
+      "language": "py",
+      "size": 1786
+    },
+    {
+      "id": "file_21",
+      "type": "file",
+      "label": "agentic_doc/llm/providers.py",
+      "language": "py",
+      "size": 1360
+    },
+    {
+      "id": "file_22",
+      "type": "file",
+      "label": "agentic_doc/core/doc_builder.py",
+      "language": "py",
+      "size": 6968
+    },
+    {
+      "id": "file_23",
+      "type": "file",
+      "label": "agentic_doc/core/prompts.py",
+      "language": "py",
+      "size": 983
+    },
+    {
+      "id": "file_24",
+      "type": "file",
+      "label": "agentic_doc/analysis/python.py",
+      "language": "py",
+      "size": 3591
+    },
+    {
+      "id": "file_25",
+      "type": "file",
+      "label": "agentic_doc/analysis/javascript.py",
+      "language": "py",
+      "size": 2401
+    },
+    {
+      "id": "file_26",
+      "type": "file",
+      "label": "agentic_doc/analysis/base.py",
+      "language": "py",
+      "size": 932
+    },
+    {
+      "id": "file_27",
+      "type": "file",
+      "label": "agentic_doc/db/session.py",
+      "language": "py",
+      "size": 552
+    },
+    {
+      "id": "file_28",
+      "type": "file",
+      "label": "agentic_doc/db/schema.py",
+      "language": "py",
+      "size": 1679
+    },
+    {
+      "id": "file_29",
+      "type": "file",
+      "label": "agentic_doc/indexer/core.py",
+      "language": "py",
+      "size": 5494
+    },
+    {
+      "id": "file_30",
+      "type": "file",
+      "label": ".agentic-doc.yml",
+      "language": "yml",
+      "size": 175
+    },
+    {
+      "id": "file_31",
+      "type": "file",
+      "label": ".DS_Store",
+      "language": "",
+      "size": 6148
+    },
+    {
+      "id": "file_34",
+      "type": "file",
+      "label": "switch_provider.sh",
+      "language": "sh",
+      "size": 1017
+    },
+    {
+      "id": "file_35",
+      "type": "file",
+      "label": "README.md",
+      "language": "md",
+      "size": 0
+    },
+    {
+      "id": "file_36",
+      "type": "file",
+      "label": "GEMINI_SETUP.md",
+      "language": "md",
+      "size": 882
+    },
+    {
+      "id": "file_37",
+      "type": "file",
+      "label": "main.py",
+      "language": "py",
+      "size": 0
+    },
+    {
+      "id": "file_38",
+      "type": "file",
+      "label": "app/core/config.py",
+      "language": "py",
+      "size": 0
+    },
+    {
+      "id": "file_39",
+      "type": "file",
+      "label": "app/core/security.py",
+      "language": "py",
+      "size": 0
+    },
+    {
+      "id": "file_40",
+      "type": "file",
+      "label": "app/models/user.py",
+      "language": "py",
+      "size": 0
+    },
+    {
+      "id": "file_41",
+      "type": "file",
+      "label": "app/models/product.py",
+      "language": "py",
+      "size": 0
+    },
+    {
+      "id": "file_42",
+      "type": "file",
+      "label": "app/db/database.py",
+      "language": "py",
+      "size": 0
+    },
+    {
+      "id": "file_43",
+      "type": "file",
+      "label": "app/api/v1/users.py",
+      "language": "py",
+      "size": 0
+    },
+    {
+      "id": "file_44",
+      "type": "file",
+      "label": "app/api/v1/router.py",
+      "language": "py",
+      "size": 0
+    },
+    {
+      "id": "file_45",
+      "type": "file",
+      "label": "app/services/user_service.py",
+      "language": "py",
+      "size": 0
+    },
+    {
+      "id": "file_46",
+      "type": "file",
+      "label": "frontend/utils/helpers.js",
+      "language": "js",
+      "size": 0
+    },
+    {
+      "id": "file_47",
+      "type": "file",
+      "label": "frontend/components/LoginForm.jsx",
+      "language": "jsx",
+      "size": 0
+    },
+    {
+      "id": "file_48",
+      "type": "file",
+      "label": "frontend/components/ProductCard.jsx",
+      "language": "jsx",
+      "size": 0
+    },
+    {
+      "id": "file_49",
+      "type": "file",
+      "label": "frontend/services/authService.js",
+      "language": "js",
+      "size": 0
+    },
+    {
+      "id": "file_51",
+      "type": "file",
+      "label": "TEST_COMPLETE.sh",
+      "language": "sh",
+      "size": 4163
+    },
+    {
+      "id": "file_58",
+      "type": "file",
+      "label": "agentic_doc.db",
+      "language": "db",
+      "size": 65536
+    },
+    {
+      "id": "file_59",
+      "type": "file",
+      "label": "graph.json",
+      "language": "json",
+      "size": 20221
+    },
+    {
+      "id": "file_60",
+      "type": "file",
+      "label": "graph.mmd",
+      "language": "mmd",
+      "size": 4393
+    },
+    {
+      "id": "symbol_30",
+      "type": "symbol",
+      "label": "Config",
+      "kind": "class",
+      "file_id": "file_18"
+    },
+    {
+      "id": "symbol_31",
+      "type": "symbol",
+      "label": "load_config",
+      "kind": "function",
+      "file_id": "file_18"
+    },
+    {
+      "id": "symbol_32",
+      "type": "symbol",
+      "label": "save_config",
+      "kind": "function",
+      "file_id": "file_18"
+    },
+    {
+      "id": "symbol_33",
+      "type": "symbol",
+      "label": "init",
+      "kind": "function",
+      "file_id": "file_19"
+    },
+    {
+      "id": "symbol_34",
+      "type": "symbol",
+      "label": "scan",
+      "kind": "function",
+      "file_id": "file_19"
+    },
+    {
+      "id": "symbol_35",
+      "type": "symbol",
+      "label": "doc",
+      "kind": "function",
+      "file_id": "file_19"
+    },
+    {
+      "id": "symbol_36",
+      "type": "symbol",
+      "label": "graph",
+      "kind": "function",
+      "file_id": "file_19"
+    },
+    {
+      "id": "symbol_37",
+      "type": "symbol",
+      "label": "serve",
+      "kind": "function",
+      "file_id": "file_19"
+    },
+    {
+      "id": "symbol_38",
+      "type": "symbol",
+      "label": "LLMClient",
+      "kind": "class",
+      "file_id": "file_20"
+    },
+    {
+      "id": "symbol_39",
+      "type": "symbol",
+      "label": "LLMClient.__init__",
+      "kind": "method",
+      "file_id": "file_20"
+    },
+    {
+      "id": "symbol_40",
+      "type": "symbol",
+      "label": "LLMClient._hash_prompt",
+      "kind": "method",
+      "file_id": "file_20"
+    },
+    {
+      "id": "symbol_41",
+      "type": "symbol",
+      "label": "LLMClient.generate",
+      "kind": "method",
+      "file_id": "file_20"
+    },
+    {
+      "id": "symbol_42",
+      "type": "symbol",
+      "label": "ModelProvider",
+      "kind": "class",
+      "file_id": "file_21"
+    },
+    {
+      "id": "symbol_43",
+      "type": "symbol",
+      "label": "ModelProvider.generate",
+      "kind": "method",
+      "file_id": "file_21"
+    },
+    {
+      "id": "symbol_44",
+      "type": "symbol",
+      "label": "OpenAIProvider",
+      "kind": "class",
+      "file_id": "file_21"
+    },
+    {
+      "id": "symbol_45",
+      "type": "symbol",
+      "label": "OpenAIProvider.__init__",
+      "kind": "method",
+      "file_id": "file_21"
+    },
+    {
+      "id": "symbol_46",
+      "type": "symbol",
+      "label": "OpenAIProvider.generate",
+      "kind": "method",
+      "file_id": "file_21"
+    },
+    {
+      "id": "symbol_47",
+      "type": "symbol",
+      "label": "MockProvider",
+      "kind": "class",
+      "file_id": "file_21"
+    },
+    {
+      "id": "symbol_48",
+      "type": "symbol",
+      "label": "MockProvider.generate",
+      "kind": "method",
+      "file_id": "file_21"
+    },
+    {
+      "id": "symbol_49",
+      "type": "symbol",
+      "label": "get_provider",
+      "kind": "function",
+      "file_id": "file_21"
+    },
+    {
+      "id": "symbol_50",
+      "type": "symbol",
+      "label": "DocBuilder",
+      "kind": "class",
+      "file_id": "file_22"
+    },
+    {
+      "id": "symbol_51",
+      "type": "symbol",
+      "label": "DocBuilder.__init__",
+      "kind": "method",
+      "file_id": "file_22"
+    },
+    {
+      "id": "symbol_52",
+      "type": "symbol",
+      "label": "DocBuilder.generate_file_docs",
+      "kind": "method",
+      "file_id": "file_22"
+    },
+    {
+      "id": "symbol_53",
+      "type": "symbol",
+      "label": "DocBuilder._process_file",
+      "kind": "method",
+      "file_id": "file_22"
+    },
+    {
+      "id": "symbol_54",
+      "type": "symbol",
+      "label": "DocBuilder.generate_dir_docs",
+      "kind": "method",
+      "file_id": "file_22"
+    },
+    {
+      "id": "symbol_55",
+      "type": "symbol",
+      "label": "DocBuilder._process_directory",
+      "kind": "method",
+      "file_id": "file_22"
+    },
+    {
+      "id": "symbol_56",
+      "type": "symbol",
+      "label": "DocBuilder.generate_arch_doc",
+      "kind": "method",
+      "file_id": "file_22"
+    },
+    {
+      "id": "symbol_57",
+      "type": "symbol",
+      "label": "PythonAnalyzer",
+      "kind": "class",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_58",
+      "type": "symbol",
+      "label": "PythonAnalyzer.analyze",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_59",
+      "type": "symbol",
+      "label": "SymbolVisitor",
+      "kind": "class",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_60",
+      "type": "symbol",
+      "label": "SymbolVisitor.__init__",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_61",
+      "type": "symbol",
+      "label": "SymbolVisitor._get_docstring",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_62",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_ClassDef",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_63",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_FunctionDef",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_64",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_AsyncFunctionDef",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_65",
+      "type": "symbol",
+      "label": "SymbolVisitor._visit_function",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_66",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_Import",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_67",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_ImportFrom",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_68",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_Call",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_69",
+      "type": "symbol",
+      "label": "SymbolVisitor._get_func_name",
+      "kind": "method",
+      "file_id": "file_24"
+    },
+    {
+      "id": "symbol_70",
+      "type": "symbol",
+      "label": "JavaScriptAnalyzer",
+      "kind": "class",
+      "file_id": "file_25"
+    },
+    {
+      "id": "symbol_71",
+      "type": "symbol",
+      "label": "JavaScriptAnalyzer.analyze",
+      "kind": "method",
+      "file_id": "file_25"
+    },
+    {
+      "id": "symbol_72",
+      "type": "symbol",
+      "label": "ExtractedSymbol",
+      "kind": "class",
+      "file_id": "file_26"
+    },
+    {
+      "id": "symbol_73",
+      "type": "symbol",
+      "label": "ExtractedReference",
+      "kind": "class",
+      "file_id": "file_26"
+    },
+    {
+      "id": "symbol_74",
+      "type": "symbol",
+      "label": "AnalysisResult",
+      "kind": "class",
+      "file_id": "file_26"
+    },
+    {
+      "id": "symbol_75",
+      "type": "symbol",
+      "label": "BaseAnalyzer",
+      "kind": "class",
+      "file_id": "file_26"
+    },
+    {
+      "id": "symbol_76",
+      "type": "symbol",
+      "label": "BaseAnalyzer.analyze",
+      "kind": "method",
+      "file_id": "file_26"
+    },
+    {
+      "id": "symbol_77",
+      "type": "symbol",
+      "label": "create_db_and_tables",
+      "kind": "function",
+      "file_id": "file_27"
+    },
+    {
+      "id": "symbol_78",
+      "type": "symbol",
+      "label": "get_session",
+      "kind": "function",
+      "file_id": "file_27"
+    },
+    {
+      "id": "symbol_79",
+      "type": "symbol",
+      "label": "File",
+      "kind": "class",
+      "file_id": "file_28"
+    },
+    {
+      "id": "symbol_80",
+      "type": "symbol",
+      "label": "Directory",
+      "kind": "class",
+      "file_id": "file_28"
+    },
+    {
+      "id": "symbol_81",
+      "type": "symbol",
+      "label": "Symbol",
+      "kind": "class",
+      "file_id": "file_28"
+    },
+    {
+      "id": "symbol_82",
+      "type": "symbol",
+      "label": "Reference",
+      "kind": "class",
+      "file_id": "file_28"
+    },
+    {
+      "id": "symbol_83",
+      "type": "symbol",
+      "label": "LLMCache",
+      "kind": "class",
+      "file_id": "file_28"
+    },
+    {
+      "id": "symbol_84",
+      "type": "symbol",
+      "label": "Indexer",
+      "kind": "class",
+      "file_id": "file_29"
+    },
+    {
+      "id": "symbol_85",
+      "type": "symbol",
+      "label": "Indexer.__init__",
+      "kind": "method",
+      "file_id": "file_29"
+    },
+    {
+      "id": "symbol_86",
+      "type": "symbol",
+      "label": "Indexer._load_ignore_spec",
+      "kind": "method",
+      "file_id": "file_29"
+    },
+    {
+      "id": "symbol_87",
+      "type": "symbol",
+      "label": "Indexer.should_ignore",
+      "kind": "method",
+      "file_id": "file_29"
+    },
+    {
+      "id": "symbol_88",
+      "type": "symbol",
+      "label": "Indexer.get_file_hash",
+      "kind": "method",
+      "file_id": "file_29"
+    },
+    {
+      "id": "symbol_89",
+      "type": "symbol",
+      "label": "Indexer.scan",
+      "kind": "method",
+      "file_id": "file_29"
+    },
+    {
+      "id": "symbol_90",
+      "type": "symbol",
+      "label": "Indexer._process_file",
+      "kind": "method",
+      "file_id": "file_29"
+    },
+    {
+      "id": "symbol_91",
+      "type": "symbol",
+      "label": "scan_codebase",
+      "kind": "function",
+      "file_id": "file_29"
+    }
+  ],
+  "edges": [
+    {
+      "source": "symbol_30",
+      "target": "file_18",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_31",
+      "target": "file_18",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_32",
+      "target": "file_18",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_33",
+      "target": "file_19",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_34",
+      "target": "file_19",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_35",
+      "target": "file_19",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_36",
+      "target": "file_19",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_37",
+      "target": "file_19",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_38",
+      "target": "file_20",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_39",
+      "target": "file_20",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_40",
+      "target": "file_20",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_41",
+      "target": "file_20",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_42",
+      "target": "file_21",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_43",
+      "target": "file_21",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_44",
+      "target": "file_21",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_45",
+      "target": "file_21",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_46",
+      "target": "file_21",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_47",
+      "target": "file_21",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_48",
+      "target": "file_21",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_49",
+      "target": "file_21",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_50",
+      "target": "file_22",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_51",
+      "target": "file_22",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_52",
+      "target": "file_22",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_53",
+      "target": "file_22",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_54",
+      "target": "file_22",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_55",
+      "target": "file_22",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_56",
+      "target": "file_22",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_57",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_58",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_59",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_60",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_61",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_62",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_63",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_64",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_65",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_66",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_67",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_68",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_69",
+      "target": "file_24",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_70",
+      "target": "file_25",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_71",
+      "target": "file_25",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_72",
+      "target": "file_26",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_73",
+      "target": "file_26",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_74",
+      "target": "file_26",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_75",
+      "target": "file_26",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_76",
+      "target": "file_26",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_77",
+      "target": "file_27",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_78",
+      "target": "file_27",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_79",
+      "target": "file_28",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_80",
+      "target": "file_28",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_81",
+      "target": "file_28",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_82",
+      "target": "file_28",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_83",
+      "target": "file_28",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_84",
+      "target": "file_29",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_85",
+      "target": "file_29",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_86",
+      "target": "file_29",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_87",
+      "target": "file_29",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_88",
+      "target": "file_29",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_89",
+      "target": "file_29",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_90",
+      "target": "file_29",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_91",
+      "target": "file_29",
+      "type": "belongs_to"
+    }
+  ],
+  "metadata": {
+    "total_files": 35,
+    "total_symbols": 62
+  }
+}

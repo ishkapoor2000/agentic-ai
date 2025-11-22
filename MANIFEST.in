@@ -1,0 +1,5 @@
+include agentic_doc/graph/assets/*
+include .env.example
+include .agentic-doc.yml
+recursive-include agentic_doc *.py
+recursive-include agentic_doc/graph/assets *.html *.css *.js *.json

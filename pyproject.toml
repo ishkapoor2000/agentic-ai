@@ -1,0 +1,49 @@
+[project]
+name = "agentic-doc"
+version = "1.0.0"
+description = "AI-powered documentation generator for large codebases with interactive mindmap visualization."
+authors = [
+    {name = "Ish Kapoor", email = "ishkapoor2000@gmail.com"},
+]
+readme = "README.md"
+license = {text = "MIT"}
+keywords = ["documentation", "ai", "llm", "codebase", "analysis", "visualization"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "typer>=0.9.0",
+    "sqlmodel>=0.0.14",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "rich>=13.0.0",
+    "pyyaml>=6.0",
+    "pathspec>=0.11.0",
+    "openai>=1.0.0",
+    "google-generativeai>=0.3.0",
+]
+requires-python = ">=3.10"
+
+[project.urls]
+Homepage = "https://github.com/ishkapoor2000/agentic-doc"
+Documentation = "https://github.com/ishkapoor2000/agentic-doc#readme"
+Repository = "https://github.com/ishkapoor2000/agentic-doc"
+
+[project.scripts]
+agentic-doc = "agentic_doc.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agentic_doc"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"agentic_doc/graph/assets" = "agentic_doc/graph/assets"

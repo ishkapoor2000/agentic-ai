@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive Codebase Mindmap - Visualize your project structure">
+    <title>Codebase Mindmap - Interactive Visualization</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="mermaidViewer.css">
+    <link rel="stylesheet" href="docPanel.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Canvas Container -->
+        <div id="canvas-container">
+            <canvas id="main-canvas"></canvas>
+            <div id="grid-overlay"></div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar glass-panel">
+            <div class="toolbar-section">
+                <h2 class="toolbar-title">Mindmap Tools</h2>
+                <div class="tool-buttons">
+                    <button class="tool-btn active" data-tool="select" title="Select & Move (V)">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 3L17 10L10 11L7 17L3 3Z" stroke="currentColor" stroke-width="2"
+                                stroke-linejoin="round" />
+                        </svg>
+                        <span>Select</span>
+                    </button>
+                    <button class="tool-btn" data-tool="pan" title="Pan View (Space)">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 3V17M3 10H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            <circle cx="10" cy="10" r="2" fill="currentColor" />
+                        </svg>
+                        <span>Pan</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-section">
+                <h2 class="toolbar-title">Actions</h2>
+                <button class="action-btn" id="load-graph-btn" title="Reload Graph Data">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 4V9H9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M20 4L4 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="display:none" /> <!-- Hidden -->
+                        <path d="M16 4C18 6 19 8 19 11C19 16 15 20 10 20C5 20 1 16 1 11C1 8 2 6 4 4"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Reload Graph
+                </button>
+                <button class="action-btn" id="reset-layout-btn" title="Randomize Layout">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        <path d="M16 16L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Shake Layout
+                </button>
+                <button class="action-btn" id="reset-view" title="Reset View (Home)">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="3" width="14" height="14" stroke="currentColor" stroke-width="2" rx="1" />
+                        <circle cx="10" cy="10" r="2" fill="currentColor" />
+                    </svg>
+                    Reset View
+                </button>
+                <button class="action-btn" id="clear-all" title="Clear Canvas">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        <line x1="5" y1="5" x2="15" y2="15" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
+                        <line x1="15" y1="5" x2="5" y2="15" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
+                    </svg>
+                    Clear All
+                </button>
+            </div>
+        </div>
+
+        <!-- Simulation Controls -->
+        <div class="sim-controls glass-panel">
+            <h2 class="toolbar-title">Physics</h2>
+            <div class="control-group">
+                <button class="sim-btn primary" id="play-pause">
+                    <svg class="play-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                        style="display: none;">
+                        <path d="M3 2L13 8L3 14V2Z" fill="currentColor" />
+                    </svg>
+                    <svg class="pause-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <rect x="4" y="2" width="3" height="12" fill="currentColor" />
+                        <rect x="9" y="2" width="3" height="12" fill="currentColor" />
+                    </svg>
+                    <span class="btn-text">Pause Physics</span>
+                </button>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    Speed
+                    <span class="speed-value">1.0x</span>
+                </label>
+                <input type="range" id="speed-control" min="0.1" max="3" step="0.1" value="1" class="slider">
+            </div>
+
+            <!-- Hidden Motor Controls -->
+            <div class="control-group motor-controls" style="display: none;">
+                <input type="range" id="motor-speed-control" value="2">
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel glass-panel">
+            <div class="info-content">
+                <div class="info-item">
+                    <span class="info-label">Nodes:</span>
+                    <span class="info-value" id="joint-count">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Edges:</span>
+                    <span class="info-value" id="link-count">0</span>
+                </div>
+            </div>
+            <div class="help-text">
+                <kbd>Space</kbd> Pan • <kbd>Scroll</kbd> Zoom • <kbd>Drag</kbd> Move Node
+            </div>
+        </div>
+
+        <!-- Welcome Message -->
+        <div class="welcome-message glass-panel" id="welcome-message">
+            <h1>🧠 Codebase Mindmap</h1>
+            <p>Explore your project structure as an interactive force-directed graph.</p>
+            <div class="welcome-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span><strong>Files</strong> are blue cards</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span><strong>Classes</strong> are amber circles</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span><strong>Functions</strong> are green dots</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span>Drag nodes to rearrange the layout</span>
+                </div>
+            </div>
+            <button class="close-welcome" id="close-welcome">Start Exploring</button>
+        </div>
+    </div>
+
+    <script src="canvas.js"></script>
+    <script src="linkage.js"></script>
+    <script src="graphLoader.js"></script> <!-- Added GraphLoader -->
+    <script src="ui.js"></script>
+    <script src="docPanel.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="graph_data.js"></script>
+    <script src="mermaidViewer.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
