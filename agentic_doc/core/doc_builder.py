@@ -158,7 +158,7 @@ Please generate standard documentation for this file.
                         'name': sym.name,
                         'kind': sym.kind,
                         'file': file_name,
-                        'signature': sym.signature or ''
+                        'signature': ''
                     })
         
         if not file_summaries:
