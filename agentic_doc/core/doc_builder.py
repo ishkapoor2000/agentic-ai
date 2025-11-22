@@ -435,6 +435,34 @@ Create a clear, insightful architecture overview that helps developers understan
                 full_content += f"- {dependent['source_name']} ({dependent['reference_type']}) in {dependent['file_path']}\n"
         
         # Save
-        safe_name = symbol.name.replace('/', '_').replace('.', '_')
         doc_path = self.docs_dir / "function-usage" / f"{safe_name}.md"
         doc_path.write_text(full_content)
+
+    def generate_manifest(self) -> dict:
+        """Generate a JSON manifest of the documentation structure."""
+        manifest = {}
+        docs_files_dir = self.docs_dir / "files"
+        
+        if not docs_files_dir.exists():
+            return {}
+            
+        for root, dirs, files in os.walk(docs_files_dir):
+            rel_path = Path(root).relative_to(docs_files_dir)
+            
+            # Navigate to current level in manifest
+            current_level = manifest
+            if str(rel_path) != ".":
+                for part in rel_path.parts:
+                    if part not in current_level:
+                        current_level[part] = {}
+                    current_level = current_level[part]
+            
+            # Add files
+            for file in files:
+                if file.endswith(".md"):
+                    name = file[:-3]  # Remove .md
+                    # Store relative path to doc file
+                    doc_rel_path = str(Path(root).relative_to(self.docs_dir) / file)
+                    current_level[name] = doc_rel_path
+                    
+        return manifest
