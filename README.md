@@ -63,11 +63,11 @@ This project was conceived and built from the ground up as a comprehensive solut
 
 ```bash
 # Install from PyPI (when published)
-pip install drishti-ai
+pip install agentic-ai
 
 # Or install from source
-git clone https://github.com/ishkapoor2000/drishti-ai.git
-cd drishti-ai
+git clone https://github.com/ishkapoor2000/agentic-ai.git
+cd agentic-ai
 pip install -e .
 ```
 

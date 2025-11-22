@@ -68,7 +68,7 @@ Every commit shows: **ishkapoor2000 <ishkapoor2000@gmail.com>**
 
 ## After Pushing - Visit Your Repository
 
-**URL**: https://github.com/ishkapoor2000/drishti-ai
+**URL**: https://github.com/ishkapoor2000/agentic-ai
 
 You'll see:
 - 🎨 Professional banner at the top
@@ -105,8 +105,8 @@ Once pushed, on GitHub go to Settings to:
 | Item | Value |
 |------|-------|
 | **Name** | drishti-ai |
-| **URL** | https://github.com/ishkapoor2000/drishti-ai |
-| **Clone** | `git clone https://github.com/ishkapoor2000/drishti-ai.git` |
+| **URL** | https://github.com/ishkapoor2000/agentic-ai |
+| **Clone** | `git clone https://github.com/ishkapoor2000/agentic-ai.git` |
 | **Package** | `pip install drishti-ai` (after PyPI publish) |
 | **Owner** | Ish Kapoor (@ishkapoor2000) |
 | **License** | MIT |

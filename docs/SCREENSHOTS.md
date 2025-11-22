@@ -121,4 +121,4 @@ High-level system documentation covering:
 
 **All visuals and documentation designed by Ish Kapoor**
 
-*For more information, visit the [GitHub repository](https://github.com/ishkapoor2000/drishti-ai)*
+*For more information, visit the [GitHub repository](https://github.com/ishkapoor2000/agentic-ai)*

@@ -41,7 +41,7 @@ git push -u origin main
 
 ## Verify Your Repository
 
-After pushing, visit: https://github.com/ishkapoor2000/drishti-ai
+After pushing, visit: https://github.com/ishkapoor2000/agentic-ai
 
 You should see:
 - ✅ Professional README with your name prominently displayed
@@ -85,5 +85,5 @@ This will show on your repository and profile pages.
 
 ---
 
-**Repository URL**: https://github.com/ishkapoor2000/drishti-ai  
-**Clone URL**: `git clone https://github.com/ishkapoor2000/drishti-ai.git`
+**Repository URL**: https://github.com/ishkapoor2000/agentic-ai  
+**Clone URL**: `git clone https://github.com/ishkapoor2000/agentic-ai.git`
