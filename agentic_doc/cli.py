@@ -1,9 +1,13 @@
 import typer
 from rich.console import Console
 from pathlib import Path
+from dotenv import load_dotenv
 from agentic_doc.config import load_config, save_config, Config
 from agentic_doc.db.session import init_db
 from agentic_doc.llm.api_tracker import get_tracker
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = typer.Typer(help="Agentic AI Documentation Generator - Professional CLI for codebase documentation.")
 console = Console()
@@ -33,10 +37,6 @@ def init(
     
     # Check if API keys are configured
     console.print("\n[bold cyan]Checking API configuration...[/bold cyan]")
-    
-    # Load .env file if it exists
-    from dotenv import load_dotenv
-    load_dotenv()
     
     try:
         from agentic_doc.config_manager import ConfigManager
