@@ -63,8 +63,10 @@ class Indexer:
     def scan(self, force: bool = False):
         session_gen = get_session()
         session = next(session_gen)
+        self._pending_references = []  # Store references to resolve later
         
         try:
+            # Pass 1: Scan files and symbols
             for root, dirs, files in os.walk(self.root):
                 # Filter directories in place
                 dirs[:] = [d for d in dirs if not self.should_ignore(Path(root) / d)]
@@ -77,6 +79,11 @@ class Indexer:
                     self._process_file(session, file_path, force)
             
             session.commit()
+            
+            # Pass 2: Resolve references
+            self._resolve_references(session)
+            session.commit()
+            
         finally:
             session.close()
 
@@ -97,9 +104,17 @@ class Indexer:
             db_file.mtime = stat.st_mtime
             db_file.size = stat.st_size
             
-            # Clear old symbols
+            # Clear old symbols and references
+            # Note: Cascading delete should handle references if configured, 
+            # but let's be safe.
+            # Actually, we need to delete references where this file is the SOURCE
+            # We can find them via symbols
             symbols = session.exec(select(Symbol).where(Symbol.file_id == db_file.id)).all()
             for s in symbols:
+                # Delete references FROM this symbol
+                refs = session.exec(select(Reference).where(Reference.source_symbol_id == s.id)).all()
+                for r in refs:
+                    session.delete(r)
                 session.delete(s)
             
             session.delete(db_file)
@@ -127,6 +142,9 @@ class Indexer:
                 content = path.read_text(errors="ignore")
                 result = analyzer.analyze(content, str(path))
                 
+                # Map symbol names to IDs for this file
+                local_symbol_map = {}
+                
                 for sym in result.symbols:
                     db_sym = Symbol(
                         name=sym.name,
@@ -137,16 +155,63 @@ class Indexer:
                         docstring=sym.docstring
                     )
                     session.add(db_sym)
+                    session.flush() # Get ID
+                    local_symbol_map[sym.name] = db_sym.id
                 
-                # TODO: Store references. 
-                # References need source_symbol_id which we might not have yet if we don't link them up.
-                # For MVP, we can store them if we resolve the source symbol, or just store raw strings in a different table?
-                # The schema has source_symbol_id as int.
-                # We can skip references for this exact step or do a second pass.
-                # Let's just store them if source is None (top level) or if we can map it.
+                # Store references for later resolution
+                for ref in result.references:
+                    source_id = None
+                    if ref.source_symbol:
+                        # Try to find source in this file
+                        # It should be in local_symbol_map if it was defined here
+                        # If it's a nested class/function, the name matches
+                        source_id = local_symbol_map.get(ref.source_symbol)
+                    
+                    self._pending_references.append({
+                        'source_symbol_id': source_id,
+                        'target_symbol_name': ref.target_symbol,
+                        'reference_type': ref.reference_type,
+                        'line_number': ref.line_number,
+                        'file_id': db_file.id
+                    })
                 
             except Exception as e:
                 print(f"Error analyzing {rel_path}: {e}")
+
+    def _resolve_references(self, session: Session):
+        """Resolve pending references to actual symbol IDs."""
+        if not self._pending_references:
+            return
+            
+        # Build a global symbol map for fast lookup: name -> [id, ...]
+        # We might have multiple symbols with same name (e.g. __init__), 
+        # so we need to be smart or just pick one for now.
+        # Ideally we use imports to resolve, but for MVP we'll match by name.
+        
+        all_symbols = session.exec(select(Symbol.id, Symbol.name)).all()
+        symbol_map = {}
+        for sym_id, name in all_symbols:
+            if name not in symbol_map:
+                symbol_map[name] = []
+            symbol_map[name].append(sym_id)
+            
+        # Process references
+        for ref in self._pending_references:
+            target_name = ref['target_symbol_name']
+            target_ids = symbol_map.get(target_name)
+            
+            if target_ids:
+                # If multiple matches, heuristic: prefer same file, then just pick first
+                # For now, just pick first
+                target_id = target_ids[0]
+                
+                db_ref = Reference(
+                    source_symbol_id=ref['source_symbol_id'],
+                    target_symbol_id=target_id,
+                    reference_type=ref['reference_type'],
+                    line_number=ref['line_number']
+                )
+                session.add(db_ref)
 
 def scan_codebase(root: Path, force: bool = False):
     indexer = Indexer(root)

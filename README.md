@@ -141,16 +141,31 @@ agentic-doc graph --format json
 agentic-doc graph --format html
 ```
 
-### Analysis
+### Analysis Tools
+
+Gain deep insights into your codebase structure and usage patterns.
+
+#### 1. Dependency Analysis
+Identify the most critical parts of your codebase ("load-bearing" code).
 
 ```bash
-# Analyze dependencies
+# Generate a "Hot Functions Report" ranking functions by usage frequency
 agentic-doc analyze-deps --show-hot
+```
 
-# Generate use case documentation
+#### 2. Use Case Documentation
+Understand *how* your code is used in practice with real examples.
+
+```bash
+# Document usage patterns for functions used at least 5 times
 agentic-doc use-cases --min-usage 5
+```
 
-# Document function usage
+#### 3. Function Usage Network
+Trace the complete call graph for specific functions.
+
+```bash
+# Generate detailed "Who calls whom?" reports
 agentic-doc function-usage
 ```
 
@@ -341,9 +356,23 @@ Copyright (c) 2025 Ish Kapoor
 
 ---
 
-## 🆘 Support
+## 🆘 Support & Troubleshooting
 
-For issues, questions, or feature requests, please open an issue on GitHub.
+### Common Issues
+
+**"No symbols with sufficient usage found"**
+If `use-cases` returns this error, your dependency index might be empty. Run a forced scan to rebuild it:
+```bash
+agentic-doc scan --force
+```
+
+**API Key Errors**
+Ensure your `.env` file is in the root directory or configure keys globally:
+```bash
+agentic-doc configure
+```
+
+For other issues, questions, or feature requests, please open an issue on GitHub.
 
 ---
 

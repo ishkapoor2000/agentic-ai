@@ -309,7 +309,18 @@ def mindmap(
         if format == "html":
             result = exporter.export_html()
             output_path.write_text(result)
+            
+            # Generate documentation manifest for the mindmap
+            from agentic_doc.core.doc_builder import DocBuilder
+            import json
+            
+            builder = DocBuilder()
+            manifest = builder.generate_manifest()
+            manifest_path = output_path.parent / "doc_manifest.json"
+            manifest_path.write_text(json.dumps(manifest, indent=2))
+            
             console.print(f"[green]✓ Interactive mindmap saved to {output_path}[/green]")
+            console.print(f"[green]✓ Documentation manifest saved to {manifest_path}[/green]")
             console.print(f"[cyan]Open {output_path} in your browser to explore[/cyan]")
         elif format == "mermaid":
             result = exporter.export_mermaid()
