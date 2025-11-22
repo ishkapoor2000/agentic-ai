@@ -8,7 +8,7 @@ Since the repository doesn't exist yet on GitHub, follow these steps:
 
 1. **Go to GitHub**: Visit https://github.com/new
 2. **Repository Details**:
-   - **Repository name**: `agentic-doc`
+   - **Repository name**: `drishti-ai`
    - **Description**: `AI-powered documentation generator for large codebases with interactive mindmap visualization`
    - **Visibility**: Public (recommended for open source) or Private
    - **⚠️ IMPORTANT**: Do NOT initialize with README, .gitignore, or license (we already have these)
@@ -20,10 +20,10 @@ If you have GitHub CLI installed:
 
 ```bash
 # Create public repository
-gh repo create agentic-doc --public --description "AI-powered documentation generator for large codebases with interactive mindmap visualization" --source=. --remote=origin
+gh repo create drishti-ai --public --description "AI-powered documentation generator for large codebases with interactive mindmap visualization" --source=. --remote=origin
 
 # Or create private repository
-gh repo create agentic-doc --private --description "AI-powered documentation generator for large codebases with interactive mindmap visualization" --source=. --remote=origin
+gh repo create drishti-ai --private --description "AI-powered documentation generator for large codebases with interactive mindmap visualization" --source=. --remote=origin
 ```
 
 ## Push Your Code
@@ -41,7 +41,7 @@ git push -u origin main
 
 ## Verify Your Repository
 
-After pushing, visit: https://github.com/ishkapoor2000/agentic-doc
+After pushing, visit: https://github.com/ishkapoor2000/drishti-ai
 
 You should see:
 - ✅ Professional README with your name prominently displayed
@@ -85,5 +85,5 @@ This will show on your repository and profile pages.
 
 ---
 
-**Repository URL**: https://github.com/ishkapoor2000/agentic-doc  
-**Clone URL**: `git clone https://github.com/ishkapoor2000/agentic-doc.git`
+**Repository URL**: https://github.com/ishkapoor2000/drishti-ai  
+**Clone URL**: `git clone https://github.com/ishkapoor2000/drishti-ai.git`
