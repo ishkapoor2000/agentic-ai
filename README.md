@@ -63,7 +63,7 @@ This project was conceived and built from the ground up as a comprehensive solut
 
 ```bash
 # Install from PyPI (when published)
-pip install agentic-ai
+pip install agentic-aish
 
 # Or install from source
 git clone https://github.com/ishkapoor2000/agentic-ai.git

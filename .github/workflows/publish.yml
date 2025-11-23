@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/agentic-ai
+      url: https://pypi.org/p/agentic-aish
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
