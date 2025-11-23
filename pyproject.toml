@@ -54,6 +54,3 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["agentic_doc"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"agentic_doc/graph/assets" = "agentic_doc/graph/assets"
