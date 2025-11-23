@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, Optional
+
 
 @dataclass
 class ExtractedSymbol:
@@ -8,19 +8,22 @@ class ExtractedSymbol:
     kind: str  # function, class, method, etc.
     line_start: int
     line_end: int
-    docstring: Optional[str] = None
+    docstring: str | None = None
+
 
 @dataclass
 class ExtractedReference:
-    source_symbol: Optional[str]  # Name of the symbol making the reference (if any)
+    source_symbol: str | None  # Name of the symbol making the reference (if any)
     target_symbol: str  # Name of the symbol being referenced
-    reference_type: str # CALLS, IMPORTS, etc.
+    reference_type: str  # CALLS, IMPORTS, etc.
     line_number: int
+
 
 @dataclass
 class AnalysisResult:
-    symbols: List[ExtractedSymbol] = field(default_factory=list)
-    references: List[ExtractedReference] = field(default_factory=list)
+    symbols: list[ExtractedSymbol] = field(default_factory=list)
+    references: list[ExtractedReference] = field(default_factory=list)
+
 
 class BaseAnalyzer(ABC):
     @abstractmethod

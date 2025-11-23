@@ -1,4 +1,4 @@
-FILE_DOC_SYSTEM_PROMPT = """You are an expert software documentation engineer. 
+FILE_DOC_SYSTEM_PROMPT = """You are an expert software documentation engineer.
 Your task is to write comprehensive documentation for a source code file.
 Focus on:
 1. High-level purpose of the file.
@@ -110,4 +110,3 @@ Please explain:
 2. **Impact**: What would break if these dependencies changed
 3. **Alternatives**: Are there alternative approaches that could reduce dependencies?
 """
-
