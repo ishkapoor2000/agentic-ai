@@ -90,7 +90,7 @@ class DependencyVisualizer:
         lines.append("    classDef important fill:#ff6b6b,stroke:#c92a2a,color:#fff")
         lines.append("    classDef moderate fill:#69db7c,stroke:#37b24d,color:#000")
 
-        return "\\n".join(lines)
+        return "\n".join(lines)
 
     def generate_file_dependency_mermaid(
         self, scope_files: list[str] | None = None
@@ -136,7 +136,7 @@ class DependencyVisualizer:
                     import_id = import_path.replace("/", "_").replace(".", "_")
                     lines.append(f"    {file_id} -->|imports| {import_id}")
 
-        return "\\n".join(lines)
+        return "\n".join(lines)
 
     def generate_hot_functions_report(self, limit: int = 20) -> str:
         """
@@ -194,7 +194,7 @@ class DependencyVisualizer:
 
                 lines.append("")
 
-        return "\\n".join(lines)
+        return "\n".join(lines)
 
     def generate_usage_heatmap_data(self, file_id: int | None = None) -> dict:
         """
