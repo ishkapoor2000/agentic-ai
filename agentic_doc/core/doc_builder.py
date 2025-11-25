@@ -471,7 +471,7 @@ Create a clear, insightful architecture overview that helps developers understan
                 full_content += f"- {dependent['source_name']} ({dependent['reference_type']}) in {dependent['file_path']}\n"
 
         # Save
-        safe_name = symbol.name.replace(".", "_").replace("/", "_")
+        safe_name = symbol.name.replace('/', '_').replace('.', '_')
         doc_path = self.docs_dir / "function-usage" / f"{safe_name}.md"
         doc_path.write_text(full_content)
 
