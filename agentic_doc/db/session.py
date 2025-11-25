@@ -1,32 +1,37 @@
-from sqlmodel import Session, create_engine, SQLModel
-from agentic_doc.config import load_config
-from pathlib import Path
 import os
+from pathlib import Path
+
+from sqlmodel import Session, SQLModel, create_engine
+
+from agentic_doc.config import load_config
+
 
 def get_engine():
     config = load_config()
     db_path = Path(config.root_path) / "agentic_doc.db"
     database_url = f"sqlite:///{db_path}"
-    
+
     # Check if database is new
     db_exists = db_path.exists()
-    
+
     engine = create_engine(database_url, echo=False)
-    
+
     # If database is new or empty, create tables
     if not db_exists or (db_path.exists() and os.path.getsize(db_path) == 0):
         # Import models first to register them
-        from agentic_doc.db.schema import File, Symbol, LLMCache
+        from agentic_doc.db import schema  # noqa: F401
         SQLModel.metadata.create_all(engine)
-    
+
     return engine
+
 
 engine = get_engine()
 
+
 def init_db():
     """Ensure all tables exist."""
-    from agentic_doc.db.schema import File, Symbol, LLMCache
     SQLModel.metadata.create_all(engine)
+
 
 def get_session():
     # Ensure tables exist before yielding session
