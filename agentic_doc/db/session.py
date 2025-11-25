@@ -19,6 +19,7 @@ def get_engine():
     # If database is new or empty, create tables
     if not db_exists or (db_path.exists() and os.path.getsize(db_path) == 0):
         # Import models first to register them
+        from agentic_doc.db import schema  # noqa: F401
         SQLModel.metadata.create_all(engine)
 
     return engine
