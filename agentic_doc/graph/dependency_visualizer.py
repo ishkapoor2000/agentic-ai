@@ -460,32 +460,24 @@ class DependencyVisualizer:
         # Generate Mermaid graph definition
         mermaid_graph = self.generate_mermaid_dependency_graph(file_id)
         
-        # Add click events for nodes
-        # We need to parse the graph to find node IDs and their corresponding files
-        # Since generate_mermaid_dependency_graph returns a string, we might need to 
-        # reconstruct the mapping or modify the generation to include clicks.
-        # For simplicity, let's regenerate the data we need.
+        # Ensure graph is TD (Vertical)
+        if "graph LR" in mermaid_graph:
+            mermaid_graph = mermaid_graph.replace("graph LR", "graph TD")
         
+        # Add click events for nodes
         graph_data = self.dep_analyzer.get_dependency_graph(file_id)
         nodes = graph_data["nodes"][:50] # Match default limit of generate_mermaid_dependency_graph
         
         click_events = []
         for node in nodes:
             # Construct absolute path for vscode:// link
-            # node['file'] is relative path
             abs_path = root_path / node['file']
-            
-            # Mermaid click syntax: click nodeID "url" "tooltip"
-            # We use a custom callback to handle the link opening to ensure it works
             node_id = f"node_{node['id']}"
-            
             # We'll use a JavaScript function to handle the click
             click_events.append(f'    click {node_id} call onNodeClick("{abs_path}") "Open {node["file"]}"')
 
         # Inject clicks into the mermaid graph
-        # We assume the graph ends with styling lines or just before the end
         mermaid_lines = mermaid_graph.split('\n')
-        # Insert clicks before the classDef lines
         insert_idx = len(mermaid_lines)
         for i, line in enumerate(mermaid_lines):
             if line.strip().startswith("classDef"):
@@ -511,8 +503,9 @@ class DependencyVisualizer:
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #f0f0f0;
-            font-family: sans-serif;
+            background-color: #1e1e1e; /* Dark background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #e0e0e0;
         }}
         #container {{
             width: 100vw;
@@ -521,8 +514,8 @@ class DependencyVisualizer:
             justify_content: center;
             align-items: center;
             background-image: 
-                linear-gradient(#e0e0e0 1px, transparent 1px),
-                linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
+                linear-gradient(#333 1px, transparent 1px),
+                linear-gradient(90deg, #333 1px, transparent 1px);
             background-size: 20px 20px;
         }}
         #graph-div {{
@@ -533,23 +526,32 @@ class DependencyVisualizer:
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: white;
+            background: #2d2d2d;
             padding: 10px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             z-index: 100;
+            display: flex;
+            gap: 8px;
         }}
         .controls button {{
-            padding: 5px 10px;
-            margin: 0 5px;
+            padding: 8px 12px;
             cursor: pointer;
             background: #007bff;
             color: white;
             border: none;
             border-radius: 4px;
+            font-weight: bold;
+            transition: background 0.2s;
         }}
         .controls button:hover {{
             background: #0056b3;
+        }}
+        /* Tooltip styling */
+        .mermaidTooltip {{
+            background-color: #333 !important;
+            color: #fff !important;
+            border: 1px solid #555 !important;
         }}
     </style>
 </head>
@@ -564,13 +566,19 @@ class DependencyVisualizer:
         <button onclick="panZoom.zoomIn()">+</button>
         <button onclick="panZoom.zoomOut()">-</button>
         <button onclick="panZoom.resetZoom()">Reset</button>
+        <button onclick="fitGraph()">Fit</button>
     </div>
 
     <script>
         mermaid.initialize({{
             startOnLoad: true,
             securityLevel: 'loose',
-            theme: 'default'
+            theme: 'dark',
+            flowchart: {{
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            }}
         }});
 
         // Callback for node clicks
@@ -579,26 +587,36 @@ class DependencyVisualizer:
             window.location.href = "vscode://file/" + path;
         }};
 
+        var panZoom = null;
+
+        function fitGraph() {{
+            if (panZoom) {{
+                panZoom.fit();
+                panZoom.center();
+            }}
+        }}
+
         // Initialize pan-zoom after mermaid renders
-        // We use a MutationObserver to detect when mermaid has finished rendering the SVG
         const observer = new MutationObserver(function(mutations) {{
             const svg = document.querySelector('#graph-div svg');
             if (svg) {{
-                // Mermaid has rendered the SVG
                 observer.disconnect();
                 
-                // Make SVG responsive
+                // Make SVG responsive and fill container
                 svg.style.width = '100%';
                 svg.style.height = '100%';
+                svg.style.maxWidth = 'none'; // Override mermaid default
                 
                 // Initialize pan-zoom
-                window.panZoom = svgPanZoom(svg, {{
+                panZoom = svgPanZoom(svg, {{
                     zoomEnabled: true,
                     controlIconsEnabled: false,
                     fit: true,
                     center: true,
                     minZoom: 0.1,
-                    maxZoom: 10
+                    maxZoom: 20,
+                    dblClickZoomEnabled: true,
+                    mouseWheelZoomEnabled: true
                 }});
             }}
         }});

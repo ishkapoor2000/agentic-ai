@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Interactive Dependency Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1e1e1e; /* Dark background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #e0e0e0;
+        }
+        #container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify_content: center;
+            align-items: center;
+            background-image: 
+                linear-gradient(#333 1px, transparent 1px),
+                linear-gradient(90deg, #333 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        #graph-div {
+            width: 100%;
+            height: 100%;
+        }
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2d2d2d;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+        }
+        .controls button {
+            padding: 8px 12px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .controls button:hover {
+            background: #0056b3;
+        }
+        /* Tooltip styling */
+        .mermaidTooltip {
+            background-color: #333 !important;
+            color: #fff !important;
+            border: 1px solid #555 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="graph-div" class="mermaid">
+graph TD
+    node_1[Config]
+    node_2(load_config)
+    node_3(save_config)
+    node_4(init)
+    node_5(scan)
+    node_6(doc)
+    node_7(graph)
+    node_8(serve)
+    node_9[LLMClient]
+    node_10{LLMClient.__init__}
+    node_11{LLMClient._hash_prompt}
+    node_12{LLMClient.generate}
+    node_13[ModelProvider]
+    node_14{ModelProvider.generate}
+    node_15[OpenAIProvider]
+    node_16{OpenAIProvider.__init__}
+    node_17{OpenAIProvider.generate}
+    node_18[MockProvider]
+    node_19{MockProvider.generate}
+    node_20(get_provider)
+    node_21[DocBuilder]
+    node_22{DocBuilder.__init__}
+    node_23{DocBuilder.generate_file_docs}
+    node_24{DocBuilder._process_file}
+    node_25{DocBuilder.generate_dir_docs}
+    node_26{DocBuilder._process_directory}
+    node_27{DocBuilder.generate_arch_doc}
+    node_28[PythonAnalyzer]
+    node_29{PythonAnalyzer.analyze}
+    node_30[SymbolVisitor]
+    node_31{SymbolVisitor.__init__}
+    node_32{SymbolVisitor._get_docstring}
+    node_33{SymbolVisitor.visit_ClassDef}
+    node_34{SymbolVisitor.visit_FunctionDef}
+    node_35{SymbolVisitor.visit_AsyncFunctionDef}
+    node_36{SymbolVisitor._visit_function}
+    node_37{SymbolVisitor.visit_Import}
+    node_38{SymbolVisitor.visit_ImportFrom}
+    node_39{SymbolVisitor.visit_Call}
+    node_40{SymbolVisitor._get_func_name}
+    node_41[JavaScriptAnalyzer]
+    node_42{JavaScriptAnalyzer.analyze}
+    node_43[ExtractedSymbol]
+    node_44[ExtractedReference]
+    node_45[AnalysisResult]
+    node_46[BaseAnalyzer]
+    node_47{BaseAnalyzer.analyze}
+    node_48(create_db_and_tables)
+    node_49(get_session)
+    node_50[File]
+
+    click node_1 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/config.py") "Open agentic_doc/config.py"
+    click node_2 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/config.py") "Open agentic_doc/config.py"
+    click node_3 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/config.py") "Open agentic_doc/config.py"
+    click node_4 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/cli.py") "Open agentic_doc/cli.py"
+    click node_5 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/cli.py") "Open agentic_doc/cli.py"
+    click node_6 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/cli.py") "Open agentic_doc/cli.py"
+    click node_7 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/cli.py") "Open agentic_doc/cli.py"
+    click node_8 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/cli.py") "Open agentic_doc/cli.py"
+    click node_9 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/core.py") "Open agentic_doc/llm/core.py"
+    click node_10 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/core.py") "Open agentic_doc/llm/core.py"
+    click node_11 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/core.py") "Open agentic_doc/llm/core.py"
+    click node_12 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/core.py") "Open agentic_doc/llm/core.py"
+    click node_13 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/providers.py") "Open agentic_doc/llm/providers.py"
+    click node_14 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/providers.py") "Open agentic_doc/llm/providers.py"
+    click node_15 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/providers.py") "Open agentic_doc/llm/providers.py"
+    click node_16 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/providers.py") "Open agentic_doc/llm/providers.py"
+    click node_17 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/providers.py") "Open agentic_doc/llm/providers.py"
+    click node_18 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/providers.py") "Open agentic_doc/llm/providers.py"
+    click node_19 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/providers.py") "Open agentic_doc/llm/providers.py"
+    click node_20 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/llm/providers.py") "Open agentic_doc/llm/providers.py"
+    click node_21 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/core/doc_builder.py") "Open agentic_doc/core/doc_builder.py"
+    click node_22 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/core/doc_builder.py") "Open agentic_doc/core/doc_builder.py"
+    click node_23 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/core/doc_builder.py") "Open agentic_doc/core/doc_builder.py"
+    click node_24 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/core/doc_builder.py") "Open agentic_doc/core/doc_builder.py"
+    click node_25 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/core/doc_builder.py") "Open agentic_doc/core/doc_builder.py"
+    click node_26 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/core/doc_builder.py") "Open agentic_doc/core/doc_builder.py"
+    click node_27 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/core/doc_builder.py") "Open agentic_doc/core/doc_builder.py"
+    click node_28 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_29 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_30 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_31 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_32 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_33 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_34 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_35 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_36 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_37 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_38 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_39 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_40 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/python.py") "Open agentic_doc/analysis/python.py"
+    click node_41 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/javascript.py") "Open agentic_doc/analysis/javascript.py"
+    click node_42 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/javascript.py") "Open agentic_doc/analysis/javascript.py"
+    click node_43 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/base.py") "Open agentic_doc/analysis/base.py"
+    click node_44 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/base.py") "Open agentic_doc/analysis/base.py"
+    click node_45 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/base.py") "Open agentic_doc/analysis/base.py"
+    click node_46 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/base.py") "Open agentic_doc/analysis/base.py"
+    click node_47 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/analysis/base.py") "Open agentic_doc/analysis/base.py"
+    click node_48 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/db/session.py") "Open agentic_doc/db/session.py"
+    click node_49 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/db/session.py") "Open agentic_doc/db/session.py"
+    click node_50 call onNodeClick("/Users/ishkapoor/Desktop/Divya Drishti/agentic_doc/db/schema.py") "Open agentic_doc/db/schema.py"
+    classDef important fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    classDef moderate fill:#69db7c,stroke:#37b24d,color:#000
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button onclick="panZoom.zoomIn()">+</button>
+        <button onclick="panZoom.zoomOut()">-</button>
+        <button onclick="panZoom.resetZoom()">Reset</button>
+        <button onclick="fitGraph()">Fit</button>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            securityLevel: 'loose',
+            theme: 'dark',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Callback for node clicks
+        window.onNodeClick = function(path) {
+            console.log("Opening:", path);
+            window.location.href = "vscode://file/" + path;
+        };
+
+        var panZoom = null;
+
+        function fitGraph() {
+            if (panZoom) {
+                panZoom.fit();
+                panZoom.center();
+            }
+        }
+
+        // Initialize pan-zoom after mermaid renders
+        const observer = new MutationObserver(function(mutations) {
+            const svg = document.querySelector('#graph-div svg');
+            if (svg) {
+                observer.disconnect();
+                
+                // Make SVG responsive and fill container
+                svg.style.width = '100%';
+                svg.style.height = '100%';
+                svg.style.maxWidth = 'none'; // Override mermaid default
+                
+                // Initialize pan-zoom
+                panZoom = svgPanZoom(svg, {
+                    zoomEnabled: true,
+                    controlIconsEnabled: false,
+                    fit: true,
+                    center: true,
+                    minZoom: 0.1,
+                    maxZoom: 20,
+                    dblClickZoomEnabled: true,
+                    mouseWheelZoomEnabled: true
+                });
+            }
+        });
+
+        observer.observe(document.getElementById('graph-div'), { childList: true, subtree: true });
+    </script>
+</body>
+</html>
