@@ -136,6 +136,9 @@ agentic-doc mindmap --format mermaid
 # Visualize dependencies
 agentic-doc visualize-deps
 
+# Generate interactive Mermaid viewer
+agentic-doc visualize-deps --format mermaid-html
+
 # Export graph data
 agentic-doc graph --format json
 agentic-doc graph --format html

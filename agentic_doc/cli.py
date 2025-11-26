@@ -278,6 +278,10 @@ def visualize_deps(
         output_path = output_path.with_suffix(".md")
         output_path.write_text(f"```mermaid\n{mermaid}\n```")
         console.print(f"[green]Mermaid diagram saved to {output_path}[/green]")
+    elif format == "mermaid-html":
+        visualizer.export_mermaid_html(output_path, file_id=file_id)
+        console.print(f"[green]Interactive Mermaid viewer saved to {output_path}[/green]")
+        console.print(f"[blue]Open {output_path} in a browser to view[/blue]")
     else:
         console.print(f"[red]Unknown format: {format}[/red]")
 

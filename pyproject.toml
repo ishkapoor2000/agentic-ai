@@ -1,6 +1,6 @@
 [project]
 name = "agentic-aish"
-version = "1.0.0"
+version = "1.0.1"
 description = "AI-powered documentation generator for large codebases with interactive mindmap visualization."
 authors = [
     {name = "Ish Kapoor", email = "ishkapoor2000@gmail.com"},
@@ -54,3 +54,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["agentic_doc"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"agentic_doc/graph/assets" = "agentic_doc/graph/assets"

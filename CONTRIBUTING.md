@@ -41,8 +41,9 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/drishti-ai.git
-cd drishti-ai
+# Clone your fork
+git clone https://github.com/YOUR_USERNAME/agentic-ai.git
+cd agentic-ai
 
 # Create virtual environment
 python -m venv .venv
