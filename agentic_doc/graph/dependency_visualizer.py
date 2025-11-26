@@ -442,3 +442,170 @@ class DependencyVisualizer:
         ]
 
         return json.dumps({"nodes": nodes, "edges": edges})
+
+    def export_mermaid_html(
+        self, output_path: Path, file_id: int | None = None
+    ) -> None:
+        """
+        Export an interactive HTML viewer for Mermaid dependency graph.
+        
+        Args:
+            output_path: Path to save the HTML file
+            file_id: Optional file ID to scope the visualization
+        """
+        from agentic_doc.config import load_config
+        config = load_config()
+        root_path = Path(config.root_path).resolve()
+
+        # Generate Mermaid graph definition
+        mermaid_graph = self.generate_mermaid_dependency_graph(file_id)
+        
+        # Add click events for nodes
+        # We need to parse the graph to find node IDs and their corresponding files
+        # Since generate_mermaid_dependency_graph returns a string, we might need to 
+        # reconstruct the mapping or modify the generation to include clicks.
+        # For simplicity, let's regenerate the data we need.
+        
+        graph_data = self.dep_analyzer.get_dependency_graph(file_id)
+        nodes = graph_data["nodes"][:50] # Match default limit of generate_mermaid_dependency_graph
+        
+        click_events = []
+        for node in nodes:
+            # Construct absolute path for vscode:// link
+            # node['file'] is relative path
+            abs_path = root_path / node['file']
+            
+            # Mermaid click syntax: click nodeID "url" "tooltip"
+            # We use a custom callback to handle the link opening to ensure it works
+            node_id = f"node_{node['id']}"
+            
+            # We'll use a JavaScript function to handle the click
+            click_events.append(f'    click {node_id} call onNodeClick("{abs_path}") "Open {node["file"]}"')
+
+        # Inject clicks into the mermaid graph
+        # We assume the graph ends with styling lines or just before the end
+        mermaid_lines = mermaid_graph.split('\n')
+        # Insert clicks before the classDef lines
+        insert_idx = len(mermaid_lines)
+        for i, line in enumerate(mermaid_lines):
+            if line.strip().startswith("classDef"):
+                insert_idx = i
+                break
+        
+        mermaid_with_clicks = (
+            mermaid_lines[:insert_idx] + 
+            click_events + 
+            mermaid_lines[insert_idx:]
+        )
+        final_mermaid = "\n".join(mermaid_with_clicks)
+
+        html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Interactive Dependency Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    <style>
+        body {{
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            font-family: sans-serif;
+        }}
+        #container {{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify_content: center;
+            align-items: center;
+            background-image: 
+                linear-gradient(#e0e0e0 1px, transparent 1px),
+                linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }}
+        #graph-div {{
+            width: 100%;
+            height: 100%;
+        }}
+        .controls {{
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }}
+        .controls button {{
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }}
+        .controls button:hover {{
+            background: #0056b3;
+        }}
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="graph-div" class="mermaid">
+{final_mermaid}
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button onclick="panZoom.zoomIn()">+</button>
+        <button onclick="panZoom.zoomOut()">-</button>
+        <button onclick="panZoom.resetZoom()">Reset</button>
+    </div>
+
+    <script>
+        mermaid.initialize({{
+            startOnLoad: true,
+            securityLevel: 'loose',
+            theme: 'default'
+        }});
+
+        // Callback for node clicks
+        window.onNodeClick = function(path) {{
+            console.log("Opening:", path);
+            window.location.href = "vscode://file/" + path;
+        }};
+
+        // Initialize pan-zoom after mermaid renders
+        // We use a MutationObserver to detect when mermaid has finished rendering the SVG
+        const observer = new MutationObserver(function(mutations) {{
+            const svg = document.querySelector('#graph-div svg');
+            if (svg) {{
+                // Mermaid has rendered the SVG
+                observer.disconnect();
+                
+                // Make SVG responsive
+                svg.style.width = '100%';
+                svg.style.height = '100%';
+                
+                // Initialize pan-zoom
+                window.panZoom = svgPanZoom(svg, {{
+                    zoomEnabled: true,
+                    controlIconsEnabled: false,
+                    fit: true,
+                    center: true,
+                    minZoom: 0.1,
+                    maxZoom: 10
+                }});
+            }}
+        }});
+
+        observer.observe(document.getElementById('graph-div'), {{ childList: true, subtree: true }});
+    </script>
+</body>
+</html>"""
+        
+        output_path.write_text(html)
