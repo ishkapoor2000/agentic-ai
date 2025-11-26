@@ -121,7 +121,9 @@ class GraphExporter:
         # Group files by directory
         dir_files: Dict[str, List[File]] = {}
         for file in files:
-            parts = file.rel_path.split('/')
+            # Normalize path separators
+            rel_path = file.rel_path.replace("\\", "/")
+            parts = rel_path.split('/')
             if len(parts) > 1:
                 dir_name = '/'.join(parts[:-1])
             else:

@@ -124,6 +124,8 @@ class DependencyVisualizer:
         lines = ["graph LR"]
 
         for file_path, deps in file_deps.items():
+            # Normalize path separators
+            file_path = file_path.replace("\\", "/")
             # Sanitize file path for Mermaid ID
             file_id = file_path.replace("/", "_").replace(".", "_")
             file_name = file_path.split("/")[-1]
