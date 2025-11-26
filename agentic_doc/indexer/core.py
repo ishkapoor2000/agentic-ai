@@ -88,8 +88,7 @@ class Indexer:
             session.close()
 
     def _process_file(self, session: Session, path: Path, force: bool):
-        # Normalize to POSIX style (forward slashes) for consistency across OS
-        rel_path = str(path.relative_to(self.root)).replace(os.sep, "/")
+        rel_path = str(path.relative_to(self.root))
         current_hash = self.get_file_hash(path)
         stat = path.stat()
         
