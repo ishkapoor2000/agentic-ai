@@ -63,7 +63,7 @@ This project was conceived and built from the ground up as a comprehensive solut
 
 ```bash
 # Install from PyPI (when published)
-pip install agentic-ai
+pip install agentic-aish
 
 # Or install from source
 git clone https://github.com/ishkapoor2000/agentic-ai.git
@@ -135,6 +135,9 @@ agentic-doc mindmap --format mermaid
 
 # Visualize dependencies
 agentic-doc visualize-deps
+
+# Generate interactive Mermaid viewer
+agentic-doc visualize-deps --format mermaid-html
 
 # Export graph data
 agentic-doc graph --format json
