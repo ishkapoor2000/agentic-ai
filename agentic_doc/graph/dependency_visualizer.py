@@ -463,33 +463,19 @@ class DependencyVisualizer:
         # Ensure graph is TD (Vertical)
         if "graph LR" in mermaid_graph:
             mermaid_graph = mermaid_graph.replace("graph LR", "graph TD")
+        elif "graph TD" not in mermaid_graph:
+             # If no direction specified, prepend it
+             mermaid_graph = "graph TD\n" + mermaid_graph
         
         # Add click events for nodes
         graph_data = self.dep_analyzer.get_dependency_graph(file_id)
         nodes = graph_data["nodes"][:50] # Match default limit of generate_mermaid_dependency_graph
         
-        click_events = []
-        for node in nodes:
-            # Construct absolute path for vscode:// link
-            abs_path = root_path / node['file']
-            node_id = f"node_{node['id']}"
-            # We'll use a JavaScript function to handle the click
-            click_events.append(f'    click {node_id} call onNodeClick("{abs_path}") "Open {node["file"]}"')
-
-        # Inject clicks into the mermaid graph
-        mermaid_lines = mermaid_graph.split('\n')
-        insert_idx = len(mermaid_lines)
-        for i, line in enumerate(mermaid_lines):
-            if line.strip().startswith("classDef"):
-                insert_idx = i
-                break
+        # We don't need to inject click events into mermaid syntax anymore
+        # We will handle clicks via the rendered SVG elements in JS
         
-        mermaid_with_clicks = (
-            mermaid_lines[:insert_idx] + 
-            click_events + 
-            mermaid_lines[insert_idx:]
-        )
-        final_mermaid = "\n".join(mermaid_with_clicks)
+        # Escape backticks in mermaid graph to avoid JS errors
+        mermaid_graph_safe = mermaid_graph.replace("`", "\\`")
 
         html = f"""<!DOCTYPE html>
 <html>
@@ -521,6 +507,8 @@ class DependencyVisualizer:
         #graph-div {{
             width: 100%;
             height: 100%;
+            opacity: 0; /* Hidden until rendered */
+            transition: opacity 0.5s ease-in;
         }}
         .controls {{
             position: fixed;
@@ -553,25 +541,47 @@ class DependencyVisualizer:
             color: #fff !important;
             border: 1px solid #555 !important;
         }}
+        
+        /* Node styling overrides */
+        .node rect, .node circle, .node polygon {{
+            fill: #2d2d2d !important;
+            stroke: #555 !important;
+        }}
+        .node .label {{
+            color: #e0e0e0 !important;
+        }}
+        
+        /* Loading indicator */
+        #loading {{
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #007bff;
+        }}
     </style>
 </head>
 <body>
+    <div id="loading">Rendering Graph...</div>
     <div id="container">
-        <div id="graph-div" class="mermaid">
-{final_mermaid}
-        </div>
+        <div id="graph-div"></div>
     </div>
     
     <div class="controls">
-        <button onclick="panZoom.zoomIn()">+</button>
-        <button onclick="panZoom.zoomOut()">-</button>
-        <button onclick="panZoom.resetZoom()">Reset</button>
+        <button onclick="zoomIn()">+</button>
+        <button onclick="zoomOut()">-</button>
+        <button onclick="resetZoom()">Reset</button>
         <button onclick="fitGraph()">Fit</button>
     </div>
 
     <script>
+        // Graph Data
+        const graphDefinition = `{mermaid_graph_safe}`;
+        const nodePaths = {self._get_node_paths_json(nodes, root_path)};
+
         mermaid.initialize({{
-            startOnLoad: true,
+            startOnLoad: false,
             securityLevel: 'loose',
             theme: 'dark',
             flowchart: {{
@@ -581,49 +591,107 @@ class DependencyVisualizer:
             }}
         }});
 
-        // Callback for node clicks
-        window.onNodeClick = function(path) {{
-            console.log("Opening:", path);
-            window.location.href = "vscode://file/" + path;
-        }};
-
         var panZoom = null;
 
-        function fitGraph() {{
-            if (panZoom) {{
+        async function renderGraph() {{
+            try {{
+                const element = document.querySelector('#graph-div');
+                const {{ svg }} = await mermaid.render('mermaid-svg', graphDefinition);
+                element.innerHTML = svg;
+                
+                // Setup interactions
+                setupInteractions();
+                
+                // Initialize PanZoom
+                initPanZoom();
+                
+                // Show graph, hide loading
+                element.style.opacity = 1;
+                document.getElementById('loading').style.display = 'none';
+                
+            }} catch (error) {{
+                console.error('Mermaid rendering failed:', error);
+                document.getElementById('loading').innerText = 'Rendering Failed: ' + error.message;
+            }}
+        }}
+
+        function setupInteractions() {{
+            // Add click handlers to nodes
+            const nodes = document.querySelectorAll('.node');
+            nodes.forEach(node => {{
+                // Extract ID from mermaid node id (e.g., "flowchart-node_123-...")
+                const idMatch = node.id.match(/node_(\\d+)/);
+                if (idMatch) {{
+                    const nodeId = parseInt(idMatch[1]);
+                    const path = nodePaths[nodeId];
+                    
+                    if (path) {{
+                        node.style.cursor = 'pointer';
+                        node.onclick = () => {{
+                            console.log("Opening:", path);
+                            window.location.href = "vscode://file/" + path;
+                        }};
+                        
+                        // Add hover effect
+                        node.onmouseover = () => {{
+                            node.querySelector('rect, circle, polygon').style.stroke = '#007bff';
+                            node.querySelector('rect, circle, polygon').style.strokeWidth = '3px';
+                        }};
+                        node.onmouseout = () => {{
+                            node.querySelector('rect, circle, polygon').style.stroke = '#555';
+                            node.querySelector('rect, circle, polygon').style.strokeWidth = '1px';
+                        }};
+                    }}
+                }}
+            }});
+        }}
+
+        function initPanZoom() {{
+            const svg = document.querySelector('#graph-div svg');
+            if (!svg) return;
+
+            // Make SVG responsive
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+            svg.style.maxWidth = 'none';
+
+            panZoom = svgPanZoom(svg, {{
+                zoomEnabled: true,
+                controlIconsEnabled: false,
+                fit: true,
+                center: true,
+                minZoom: 0.1,
+                maxZoom: 20,
+                dblClickZoomEnabled: true,
+                mouseWheelZoomEnabled: true
+            }});
+        }}
+
+        // Control functions
+        function zoomIn() {{ if(panZoom) panZoom.zoomIn(); }}
+        function zoomOut() {{ if(panZoom) panZoom.zoomOut(); }}
+        function resetZoom() {{ if(panZoom) panZoom.resetZoom(); }}
+        function fitGraph() {{ 
+            if(panZoom) {{
                 panZoom.fit();
                 panZoom.center();
             }}
         }}
 
-        // Initialize pan-zoom after mermaid renders
-        const observer = new MutationObserver(function(mutations) {{
-            const svg = document.querySelector('#graph-div svg');
-            if (svg) {{
-                observer.disconnect();
-                
-                // Make SVG responsive and fill container
-                svg.style.width = '100%';
-                svg.style.height = '100%';
-                svg.style.maxWidth = 'none'; // Override mermaid default
-                
-                // Initialize pan-zoom
-                panZoom = svgPanZoom(svg, {{
-                    zoomEnabled: true,
-                    controlIconsEnabled: false,
-                    fit: true,
-                    center: true,
-                    minZoom: 0.1,
-                    maxZoom: 20,
-                    dblClickZoomEnabled: true,
-                    mouseWheelZoomEnabled: true
-                }});
-            }}
-        }});
-
-        observer.observe(document.getElementById('graph-div'), {{ childList: true, subtree: true }});
+        // Start rendering
+        renderGraph();
     </script>
 </body>
 </html>"""
         
         output_path.write_text(html)
+
+    def _get_node_paths_json(self, nodes: list[dict], root_path: Path) -> str:
+        """Helper to generate JSON mapping of node IDs to file paths."""
+        import json
+        mapping = {}
+        for node in nodes:
+            # Create absolute path
+            abs_path = str(root_path / node['file'])
+            mapping[node['id']] = abs_path
+        return json.dumps(mapping)
