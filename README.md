@@ -26,18 +26,65 @@ This project was conceived and built from the ground up as a comprehensive solut
 
 ## ✨ Features
 
+### 🎯 Core Capabilities
 - 🔍 **Smart Indexing**: Recursive file scanning with `.gitignore` support
 - 🧠 **AI-Powered Docs**: Uses LLMs (OpenAI, Gemini) to generate high-quality documentation
 - 📊 **Symbol Graph**: Tracks functions, classes, and their relationships
-- 🗺️ **Interactive Mindmap**: Beautiful, interactive visualization of your codebase
-- 📁 **Multi-Level Docs**:
-  - **File-level**: Detailed documentation for each source file
-  - **Directory-level**: Module/package overviews
-  - **Architecture-level**: System-wide architecture analysis
 - 💾 **Smart Caching**: Saves LLM responses to avoid redundant API calls
 - ⚡ **Incremental Updates**: Only re-documents changed files
-- 📈 **API Request Tracking**: Monitor and optimize your API usage
-- 🔧 **Easy Configuration**: Interactive setup wizard for API keys
+
+### 🔥 NEW: Critical Code Analysis
+- **🎯 Criticality Scoring**: Automatically calculates risk scores (0-100) for every function
+- **📈 Impact Analysis**: Shows exactly what depends on each component
+- **🔴🟡🟢 Risk Levels**: Instant visibility into HIGH/MEDIUM/LOW risk changes
+- **🔍 Dead Code Detection**: Identifies unused functions for cleanup
+- **👨‍💼 Deputy CTO Approved**: Powerful tool for engineering leadership
+
+### 🛣️ NEW: Smart Route Documentation
+- **Auto-detects API files**: Recognizes Flask, FastAPI, Django routes
+- **Clean endpoint tables**: Organized by domain (Analytics, Customer, etc.)
+- **Method breakdown**: GET/POST/PUT/DELETE statistics
+- **Handler mapping**: Links routes to implementation code
+
+### 📁 Multi-Level Documentation
+- **File-level**: Detailed docs for each source file
+- **Directory-level**: Module/package overviews
+- **Architecture-level**: System-wide analysis
+- **Route-level**: Specialized API endpoint documentation
+
+### 🗺️ Interactive Visualizations
+- **Force-directed mindmaps**: Explore code relationships visually
+- **Dependency graphs**: See what connects to what
+- **Mermaid diagrams**: Export for documentation
+- **Heatmap mode**: Highlight critical/hot code paths
+
+### 🗺️ Interactive Visualizations
+- **Force-directed mindmaps**: Explore code relationships visually
+- **Dependency graphs**: See what connects to what
+- **Mermaid diagrams**: Export for documentation
+- **Heatmap mode**: Highlight critical/hot code paths
+
+---
+
+## 🆕 What's New (v1.0.3)
+
+### 🔥 Enhanced Hot Functions Report
+The Deputy CTO's favorite feature just got **way more powerful**:
+
+- **Criticality scoring algorithm** that ranks functions by risk (0-100)
+- **Visual risk indicators** (\ud83d\udd34 HIGH / \ud83d\udfe1 MEDIUM / \ud83d\udfe2 LOW)
+- **Dependency impact analysis** shows what breaks if you change function X
+- **Dead code detection** finds 100+ unused functions in seconds
+- **Actionable recommendations** for refactoring critical code
+
+### 🛣️ Smart Route Documentation
+API files get **specialized treatment**:
+
+- **Auto-detects** Flask/FastAPI/Django route files
+- **Clean tables** grouping endpoints by domain (Analytics, Customer, etc.)
+- **Statistics** showing GET/POST breakdown, total routes, base paths
+- **Handler links** connecting routes to implementation code
+- **Common gotchas** section for each framework
 
 ---
 
@@ -144,31 +191,46 @@ agentic-doc graph --format json
 agentic-doc graph --format html
 ```
 
-### Analysis Tools
+### 🔥 Critical Code Analysis (NEW!)
 
-Gain deep insights into your codebase structure and usage patterns.
+Identify your **load-bearing functions** and manage technical risk.
 
-#### 1. Dependency Analysis
-Identify the most critical parts of your codebase ("load-bearing" code).
+#### Enhanced Hot Functions Report
 
 ```bash
-# Generate a "Hot Functions Report" ranking functions by usage frequency
-agentic-doc analyze-deps --show-hot
+# Generate critical code report with risk scoring
+agentic-doc analyze-deps --enhanced
+
+# Output: docs/analysis/critical-code-report.md
 ```
 
-#### 2. Use Case Documentation
-Understand *how* your code is used in practice with real examples.
+**What you get:**
+- 📊 Criticality scores (0-100) for every function
+- 🔴 High-risk functions (>80) that need careful handling
+- 🟡 Medium-risk functions (50-80) requiring tests
+- 🔍 Unused/rare functions (candidates for removal)
+- 📈 Dependency impact analysis showing blast radius
+- 👥 "Who calls this?" for top critical functions
+
+**Example output:**
+```markdown
+| 🏆 | Function | Criticality | Usage | Risk |
+|----|----------|-------------|-------|------|
+| 1 | execute_query | ⚠️ **95/100** | 45 calls | 🔴 HIGH |
+| 2 | validate_auth | ⚠️ **88/100** | 38 calls | 🔴 HIGH |
+```
+
+#### Use Case Documentation
 
 ```bash
-# Document usage patterns for functions used at least 5 times
+# Document usage patterns for frequently-used code
 agentic-doc use-cases --min-usage 5
 ```
 
-#### 3. Function Usage Network
-Trace the complete call graph for specific functions.
+#### Function Usage Network
 
 ```bash
-# Generate detailed "Who calls whom?" reports
+# Trace call graphs for specific functions
 agentic-doc function-usage
 ```
 
@@ -389,24 +451,37 @@ For other issues, questions, or feature requests, please open an issue on GitHub
 
 ## 🎯 Project Roadmap
 
-### ✅ Completed
-- Core documentation generation
-- Multi-provider LLM support
-- Interactive mindmap visualization
-- Dependency analysis
-- Incremental documentation
-
-### 🚧 In Progress
-- PyPI package publishing
-- Enhanced CLI features
-- Performance optimizations
+### ✅ Completed (v1.0.3)
+- Core documentation generation (file/dir/architecture)
+- Multi-provider LLM support (OpenAI, Gemini, Mock)
+- Interactive mindmap visualization with layers
+- Dependency analysis and usage tracking
+- Incremental documentation with caching
+- **🔥 Enhanced Hot Functions Report with criticality scoring**
+- **🛣️ Smart Route Documentation for API files**
+- PyPI package publishing (agentic-aish)
 
 ### 📋 Planned
-- Watch mode (auto-regenerate on changes)
+- **Simplify Docs CLI**: TL;DR generator for quick reference cards
+- Watch mode (auto-regenerate on file changes)
 - Local LLM support (Ollama, llama.cpp)
-- VSCode extension
-- Web UI (optional)
-- Plugin system
+- VSCode extension with inline docs
+- Web UI dashboard (optional)
+- Plugin system for custom analyzers
+
+---
+
+## 🆚 Why Agentic Doc?
+
+| Feature | Manual Docs | Basic Tools | **Agentic Doc** |
+|---------|-------------|-------------|----------------|
+| **Accuracy** | \u274c Outdated quickly | \u26a0\ufe0f Comments only | \u2705 Always in sync |
+| **Critical Code ID** | \u274c Manual guessing | \u274c Not available | \u2705 Auto-scored (0-100) |
+| **API Routes** | \u274c Text lists | \u26a0\ufe0f Simple tables | \u2705 Smart grouped tables |
+| **Dead Code** | \u274c Hard to find | \u26a0\ufe0f Basic search | \u2705 Usage-tracked |
+| **Impact Analysis** | \u274c Unknown | \u274c Not available | \u2705 Full dependency graph |
+| **Time to Setup** | N/A | Hours | **5 minutes** |
+
 
 ---
 

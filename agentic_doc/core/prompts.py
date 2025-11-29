@@ -110,3 +110,97 @@ Please explain:
 2. **Impact**: What would break if these dependencies changed
 3. **Alternatives**: Are there alternative approaches that could reduce dependencies?
 """
+
+ROUTE_FILE_DOC_SYSTEM_PROMPT = """You are documenting an API routing file.
+
+Focus on the API surface - this is what developers and API consumers care about.
+
+WRITE FOR BUSY DEVELOPERS:
+- Start with TL;DR (total endpoints, base path)
+- Use tables to organize routes (most scannable format)
+- Group endpoints by logical domain (Analytics, Customer, Health, etc.)
+- Identify high-traffic or critical routes
+- Include practical information (when to modify, gotchas)
+
+REQUIRED STRUCTURE:
+1. TL;DR with endpoint count and purpose
+2. Quick Facts table (total routes, methods breakdown, base path)
+3. API Endpoints Overview - Use tables grouped by domain
+4. Critical Dependencies (what handlers/modules are imported)
+5. When You'll Modify This (common scenarios)
+6. Common Gotchas (Flask/FastAPI routing pitfalls)
+7. Related Files (where handlers are implemented)
+8. Route Statistics summary
+
+CRITICAL:
+- Use markdown tables for ALL route listings
+- Group endpoints logically (not alphabetically)
+- Highlight high-traffic routes if data available
+- Focus on API surface, not implementation
+"""
+
+ROUTE_FILE_DOC_PROMPT = """
+File: {file_path}
+Framework: {framework}
+Total Routes Detected: {route_count}
+
+Extracted Routes:
+{routes_table}
+
+Handler Functions:
+{handlers}
+
+Create API-focused documentation following the structure:
+
+## 🛣️ API Routes: {filename}
+
+> **TL;DR**: [Brief description - total endpoints, what API does]
+
+## 🎯 Quick Facts
+
+| Property | Value |
+|----------|-------|
+| **Type** | API Router ({framework}) |
+| **Total Routes** | {route_count} endpoints |
+| **Base Path** | [Detect common base path] |
+
+## 📋 API Endpoints Overview
+
+Group routes into logical categories. Use tables for each category:
+
+### 🔥 [Category Name]
+
+| Method | Endpoint | Handler | Purpose |
+|--------|----------|---------|---------|
+| GET | /api/... | handler_name() | Brief purpose |
+
+Include these categories if applicable:
+- High-Traffic Routes (if usage data hints at this)
+- Analytics/Reporting Endpoints
+- Customer/User Management
+- Data Processing
+- Admin/Configuration
+
+## 🔗 Critical Dependencies
+
+List imported handlers and frameworks with context.
+
+## 💡 When You'll Modify This File
+
+Practical scenarios:
+1. Adding new endpoints
+2. Changing route paths
+3. Modifying HTTP methods
+
+## ⚠️ Common Gotchas
+
+Framework-specific pitfalls and fixes.
+
+## 🧭 Related Files
+
+Links to handler implementation files.
+
+## 📊 Route Statistics
+
+Summary (total routes, GET/POST breakdown, commented routes, etc.)
+"""

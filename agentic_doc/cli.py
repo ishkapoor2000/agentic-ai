@@ -176,6 +176,7 @@ def function_usage(
 def analyze_deps(
     file_path: str = typer.Argument(None, help="Specific file to analyze (optional)"),
     show_hot: bool = typer.Option(True, help="Show hot functions report"),
+    enhanced: bool = typer.Option(True, help="Use enhanced report with criticality scores"),
 ):
     """
     Analyze and display dependency information.
@@ -190,8 +191,12 @@ def analyze_deps(
     visualizer = DependencyVisualizer(session)
 
     if show_hot:
-        console.print("[bold blue]Generating hot functions report...[/bold blue]")
-        report = visualizer.generate_hot_functions_report(limit=20)
+        if enhanced:
+            console.print("[bold blue]Generating enhanced critical code report...[/bold blue]")
+            report = visualizer.generate_enhanced_hot_functions_report(limit=20)
+        else:
+            console.print("[bold blue]Generating hot functions report...[/bold blue]")
+            report = visualizer.generate_hot_functions_report(limit=20)
 
         # Save to docs
         from pathlib import Path
@@ -202,7 +207,8 @@ def analyze_deps(
         docs_dir = Path(config.root_path) / "docs" / "analysis"
         docs_dir.mkdir(parents=True, exist_ok=True)
 
-        report_path = docs_dir / "hot-functions.md"
+        report_name = "critical-code-report.md" if enhanced else "hot-functions.md"
+        report_path = docs_dir / report_name
         report_path.write_text(report)
         console.print(f"[green]Report saved to {report_path}[/green]")
 
@@ -218,7 +224,7 @@ def analyze_deps(
             analyzer = DependencyAnalyzer(session)
 
             deps = analyzer.get_file_dependencies(file_obj.id)
-            console.print(f"\n[bold]Imports:[/bold] {', '.join(deps['imports'][:10])}")
+            console.print(f"\\n[bold]Imports:[/bold] {', '.join(deps['imports'][:10])}")
             console.print(
                 f"[bold]Imported by:[/bold] {', '.join(deps['imported_by'][:10])}"
             )

@@ -138,6 +138,62 @@ class DependencyVisualizer:
 
         return "\n".join(lines)
 
+    def calculate_criticality_score(self, symbol_id: int) -> dict:
+        """
+        Calculate how critical/risky a function is based on multiple factors.
+        
+        Args:
+            symbol_id: ID of the symbol to analyze
+            
+        Returns:
+            Dict with score, risk level, and component metrics
+        """
+        stats = self.usage_tracker.get_usage_statistics(symbol_id)
+        deps = self.dep_analyzer.get_symbol_dependencies(symbol_id)
+        dependents = self.dep_analyzer.get_symbol_dependents(symbol_id)
+        
+        # Get LOC from symbol
+        symbol = self.session.get(Symbol, symbol_id)
+        loc = (symbol.line_end - symbol.line_start) if symbol else 0
+        
+        # Calculate components
+        usage_count = stats["total_usages"]
+        fan_in = len(dependents)  # How many call this
+        fan_out = len(deps)       # How many this calls
+        complexity_factor = 1 if loc > 100 else 0
+        
+        # Weighted score
+        score = (
+            usage_count * 2.0 +
+            fan_in * 1.5 +
+            fan_out * 0.5 +
+            complexity_factor * 10
+        )
+        
+        # Normalize to 0-100
+        normalized = min(100, int(score * 0.8))
+        
+        # Risk level
+        if normalized >= 80:
+            risk = "HIGH"
+            emoji = "🔴"
+        elif normalized >= 50:
+            risk = "MEDIUM"
+            emoji = "🟡"
+        else:
+            risk = "LOW"
+            emoji = "🟢"
+        
+        return {
+            "score": normalized,
+            "risk_level": risk,
+            "risk_emoji": emoji,
+            "usage_count": usage_count,
+            "fan_in": fan_in,
+            "fan_out": fan_out,
+            "loc": loc
+        }
+
     def generate_hot_functions_report(self, limit: int = 20) -> str:
         """
         Generate a markdown report of the hottest (most used) functions.
@@ -194,6 +250,161 @@ class DependencyVisualizer:
 
                 lines.append("")
 
+        return "\n".join(lines)
+
+    def generate_enhanced_hot_functions_report(self, limit: int = 20) -> str:
+        """
+        Generate ENHANCED critical code report with criticality scoring.
+        
+        Args:
+            limit: Number of functions to analyze
+            
+        Returns:
+            Markdown report with risk analysis
+        """
+        hot_functions = self.usage_tracker.get_hot_functions(limit=limit)
+        
+        # Calculate criticality for each
+        enriched = []
+        for func in hot_functions:
+            criticality = self.calculate_criticality_score(func["id"])
+            enriched.append({**func, **criticality})
+        
+        # Sort by criticality score
+        enriched.sort(key=lambda x: x["score"], reverse=True)
+        
+        lines = [
+            "# 🔥 Critical Code Report",
+            "",
+            "> **Deputy CTO Summary**: These are your **load-bearing** functions. Changes here affect the entire system.",
+            "",
+            "---",
+            "",
+            "## 📊 Top Critical Functions",
+            "",
+            "| 🏆 | Function | Criticality | Usage | Risk | File |",
+            "|----|----------|-------------|-------|------|------|",
+        ]
+        
+        for i, func in enumerate(enriched[:10], 1):
+            lines.append(
+                f"| {i} | `{func['name']}` | {func['risk_emoji']} **{func['score']}/100** | "
+                f"{func['usage_count']} calls | {func['risk_emoji']} {func['risk_level']} | `{func['file']}` |"
+            )
+        
+        lines.extend([
+            "",
+            "---",
+            "",
+            "## 🎯 Why This Matters",
+            "",
+            "### High-Risk Changes (🔴)",
+            "These functions are **critical infrastructure**. Before modifying:",
+            "- ✅ Write comprehensive tests",
+            "- ✅ Review with 2+ engineers",
+            "- ✅ Deploy with feature flag",
+            "- ✅ Monitor error rates closely",
+            "",
+            "### Medium-Risk Changes (🟡)",
+            "Widely used but manageable:",
+            "- ✅ Unit test coverage",
+            "- ✅ Code review required",
+            "- ✅ Monitor after deployment",
+            "",
+            "---",
+            "",
+            "## 📈 Dependency Impact Analysis",
+            "",
+        ])
+        
+        # Deep dive on top 3 critical functions
+        for func in enriched[:3]:
+            symbol = self.session.get(Symbol, func["id"])
+            if not symbol:
+                continue
+                
+            deps = self.dep_analyzer.get_symbol_dependencies(symbol.id)
+            dependents = self.dep_analyzer.get_symbol_dependents(symbol.id)
+            
+            lines.extend([
+                f"### `{func['name']}` Deep Dive",
+                f"**Criticality Score: {func['score']}/100** {func['risk_emoji']}",
+                "",
+                "**Why It's Critical**:",
+                f"- Called by **{func['fan_in']} different functions**",
+                f"- Uses **{func['fan_out']} dependencies**",
+                f"- Total usage: **{func['usage_count']} times**",
+            ])
+            
+            if func['loc'] > 100:
+                lines.append(f"- Large function: **{func['loc']} lines** (complexity risk)")
+            
+            lines.append("")
+            lines.append("**What Calls It** (Top 5):")
+            for i, dep in enumerate(dependents[:5], 1):
+                lines.append(f"{i}. `{dep['source_name']}` in `{dep['file_path']}`")
+            
+            lines.append("")
+            
+            if func['fan_out'] > 0:
+                lines.append("**What It Calls** (Top 5):")
+                for i, dep in enumerate(deps[:5], 1):
+                    lines.append(f"{i}. `{dep['target_name']}` ({dep['reference_type']})")
+                lines.append("")
+            
+            # Recommendation
+            if func['score'] >= 80 and func['fan_in'] > 10:
+                lines.extend([
+                    "**Recommendation**: ",
+                    "⚠️ Consider **wrapper functions** for different use cases to reduce coupling",
+                    "",
+                ])
+            
+            lines.extend(["", "---", ""])
+        
+        # Find unused functions
+        from sqlmodel import select
+        all_symbols = self.session.exec(
+            select(Symbol).where(Symbol.kind.in_(["function", "method"]))
+        ).all()
+        
+        unused = []
+        for sym in all_symbols:
+            stats = self.usage_tracker.get_usage_statistics(sym.id)
+            if stats["total_usages"] <= 1:
+                file_obj = self.session.get(File, sym.file_id)
+                unused.append({
+                    "name": sym.name,
+                    "file": file_obj.rel_path if file_obj else "unknown",
+                    "usage": stats["total_usages"]
+                })
+        
+        if unused:
+            lines.extend([
+                "## 🔍 Unused/Rare Functions (Candidates for Removal)",
+                "",
+                "These functions are called < 2 times - safe to deprecate:",
+                "",
+            ])
+            
+            for func in unused[:10]:  # Top 10 unused
+                lines.append(f"- `{func['name']}()` in `{func['file']}` - {func['usage']} usage")
+            
+            if len(unused) > 10:
+                lines.append(f"\n*...and {len(unused) - 10} more unused functions*")
+            
+            lines.extend(["", "---", ""])
+        
+        lines.extend([
+            "## 📅 Metadata",
+            "",
+            f"- **Total Functions Analyzed**: {len(hot_functions)}",
+            f"- **High-Risk Functions**: {len([f for f in enriched if f['risk_level'] == 'HIGH'])}",
+            f"- **Medium-Risk Functions**: {len([f for f in enriched if f['risk_level'] == 'MEDIUM'])}",
+            f"- **Low-Risk Functions**: {len([f for f in enriched if f['risk_level'] == 'LOW'])}",
+            f"- **Unused Functions Found**: {len(unused)}",
+        ])
+        
         return "\n".join(lines)
 
     def generate_usage_heatmap_data(self, file_id: int | None = None) -> dict:

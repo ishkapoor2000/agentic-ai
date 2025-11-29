@@ -14,6 +14,8 @@ from agentic_doc.core.prompts import (
     FUNCTION_USAGE_DOC_PROMPT,
     USE_CASE_DOC_SYSTEM_PROMPT,
     USE_CASE_DOC_USER_PROMPT,
+    ROUTE_FILE_DOC_SYSTEM_PROMPT,
+    ROUTE_FILE_DOC_PROMPT,
 )
 from agentic_doc.db.schema import File, Symbol
 from agentic_doc.db.session import get_session
@@ -55,41 +57,51 @@ class DocBuilder:
         symbols = session.exec(select(Symbol).where(Symbol.file_id == file.id)).all()
         symbol_str = "\n".join([f"- {s.kind}: {s.name}" for s in symbols])
 
-        dependencies_str = ""
-        usage_stats_str = ""
+        # Check if this is a route file
+        is_routes = self._is_route_file(file, content)
+        
+        if is_routes:
+            # Use specialized route documentation
+            prompt = self._build_route_doc_prompt(session, file, content, symbols)
+            system_prompt = ROUTE_FILE_DOC_SYSTEM_PROMPT
+            doc_content = self.llm.generate(prompt, system_prompt)
+        else:
+            # Regular file documentation
+            dependencies_str = ""
+            usage_stats_str = ""
 
-        if enhanced:
-            # Initialize analyzers
-            dep_analyzer = DependencyAnalyzer(session)
-            usage_tracker = UsageTracker(session)
+            if enhanced:
+                # Initialize analyzers
+                dep_analyzer = DependencyAnalyzer(session)
+                usage_tracker = UsageTracker(session)
 
-            # Get dependency info for this file
-            file_deps = dep_analyzer.get_file_dependencies(file.id)
-            dependencies_str = f"""Imports: {", ".join(file_deps["imports"][:5]) if file_deps["imports"] else "None"}
+                # Get dependency info for this file
+                file_deps = dep_analyzer.get_file_dependencies(file.id)
+                dependencies_str = f"""Imports: {", ".join(file_deps["imports"][:5]) if file_deps["imports"] else "None"}
 Imported by: {", ".join(file_deps["imported_by"][:5]) if file_deps["imported_by"] else "None"}"""
 
-            # Get usage stats for key symbols
-            for symbol in symbols[:3]:  # Top 3 symbols
-                stats = usage_tracker.get_usage_statistics(symbol.id)
-                if stats["total_usages"] > 0:
-                    usage_stats_str += f"\n- {symbol.name}: used {stats['total_usages']} times in {stats['files_used_in']} files"
+                # Get usage stats for key symbols
+                for symbol in symbols[:3]:  # Top 3 symbols
+                    stats = usage_tracker.get_usage_statistics(symbol.id)
+                    if stats["total_usages"] > 0:
+                        usage_stats_str += f"\n- {symbol.name}: used {stats['total_usages']} times in {stats['files_used_in']} files"
 
-            if not usage_stats_str:
-                usage_stats_str = "No significant usage tracked yet."
+                if not usage_stats_str:
+                    usage_stats_str = "No significant usage tracked yet."
 
-        # Generate
-        if enhanced:
-            prompt = FILE_DOC_USER_PROMPT.format(
-                file_path=file.rel_path,
-                language=file.language,
-                content=content[:10000],  # Truncate for safety
-                symbols=symbol_str,
-                dependencies=dependencies_str,
-                usage_stats=usage_stats_str,
-            )
-        else:
-            # Use a simpler prompt for standard docs to save tokens
-            prompt = f"""
+            # Generate
+            if enhanced:
+                prompt = FILE_DOC_USER_PROMPT.format(
+                    file_path=file.rel_path,
+                    language=file.language,
+                    content=content[:10000],  # Truncate for safety
+                    symbols=symbol_str,
+                    dependencies=dependencies_str,
+                    usage_stats=usage_stats_str,
+                )
+            else:
+                # Use a simpler prompt for standard docs to save tokens
+                prompt = f"""
 File Path: {file.rel_path}
 Language: {file.language}
 
@@ -104,12 +116,68 @@ Symbols:
 Please generate standard documentation for this file.
 """
 
-        doc_content = self.llm.generate(prompt, FILE_DOC_SYSTEM_PROMPT)
+            doc_content = self.llm.generate(prompt, FILE_DOC_SYSTEM_PROMPT)
 
         # Save
         doc_path = self.docs_dir / "files" / f"{file.rel_path}.md"
         doc_path.parent.mkdir(parents=True, exist_ok=True)
         doc_path.write_text(doc_content)
+
+    def _is_route_file(self, file: File, content: str) -> bool:
+        """Detect if file is primarily for API routing."""
+        # Check filename
+        filename_lower = file.rel_path.lower()
+        if any(kw in filename_lower for kw in ['route', 'urls', 'api', 'endpoint']):
+            return True
+        
+        # Check for high concentration of routing patterns
+        route_patterns = ['add_url_rule', '@app.get', '@app.post', '@app.route', '@router.', '.route(']
+        route_count = sum(content.count(pattern) for pattern in route_patterns)
+        
+        return route_count > 5  # Threshold
+
+    def _build_route_doc_prompt(self, session, file: File, content: str, symbols) -> str:
+        """Build specialized prompt for route files."""
+        from agentic_doc.analysis.python import PythonAnalyzer
+        
+        # Analyze to extract routes
+        analyzer = PythonAnalyzer()
+        result = analyzer.analyze(content, file.rel_path)
+        
+        routes = result.routes  # List of ExtractedRoute objects
+        
+        # Detect framework
+        framework = "Flask"
+        if "fastapi" in content.lower() or "@router." in content:
+            framework = "FastAPI"
+        elif "django" in content.lower():
+            framework = "Django"
+        
+        # Build routes table
+        routes_table = "| Method | Path | Handler | Line |\n|--------|------|---------|------|\n"
+        for route in routes:
+            routes_table += f"| {route.method} | `{route.path}` | `{route.view_func}()` | {route.line_number} |\n"
+        
+        if not routes:
+            routes_table = "No routes detected via decorators. Check add_url_rule calls.\n"
+        
+        # Get imported handlers/view functions
+        handlers = [s.name for s in symbols]
+        # Also check imports in content
+        import_lines = [line for line in content.split("\n") if "import" in line.lower()]
+        
+        handlers_str = ", ".join(handlers[:30]) if handlers else "View functions defined inline"
+        
+        filename = Path(file.rel_path).name
+        
+        return ROUTE_FILE_DOC_PROMPT.format(
+            file_path=file.rel_path,
+            filename=filename,
+            framework=framework,
+            route_count=len(routes) if routes else "Unknown",
+            routes_table=routes_table,
+            handlers=handlers_str
+        )
 
     def generate_dir_docs(self):
         """Generate directory-level documentation by aggregating file docs."""
