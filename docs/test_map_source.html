@@ -1,0 +1,3226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive Codebase Mindmap - Visualize your project structure">
+    <title>Codebase Mindmap - Interactive Visualization</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    
+    
+
+<style>
+/* styles.css */
+/* ================================================
+   DESIGN SYSTEM - CSS VARIABLES
+   ================================================ */
+:root {
+    /* Color Palette - Deep Space Mindmap */
+    --color-bg-primary: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-bg-tertiary: #334155;
+
+    /* Glassmorphism */
+    --glass-bg: rgba(30, 41, 59, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+
+    /* Node Colors */
+    --color-node-file: #3b82f6;
+    --color-node-class: #f59e0b;
+    --color-node-function: #10b981;
+
+    /* Vibrant Accents */
+    --color-primary: #8b5cf6;
+    --color-primary-light: #a78bfa;
+    --color-primary-dark: #7c3aed;
+    --color-accent: #06b6d4;
+    --color-accent-glow: rgba(139, 92, 246, 0.4);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+    --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+
+    /* Text */
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+
+    /* Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Animation */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Border Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+}
+
+/* ================================================
+   RESET & BASE STYLES
+   ================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    overflow: hidden;
+    font-weight: var(--font-weight-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ================================================
+   LAYOUT
+   ================================================ */
+.app-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+}
+
+#canvas-container.panning {
+    cursor: grabbing;
+}
+
+#main-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ================================================
+   GLASSMORPHISM PANELS
+   ================================================ */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    padding: var(--space-lg);
+    animation: fadeInUp var(--transition-slow) ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================================================
+   TOOLBAR
+   ================================================ */
+.toolbar {
+    position: absolute;
+    top: var(--space-lg);
+    left: var(--space-lg);
+    width: 220px;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.toolbar-section {
+    margin-bottom: var(--space-lg);
+}
+
+.toolbar-title {
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.toolbar-divider {
+    height: 1px;
+    background: var(--glass-border);
+    margin: var(--space-lg) 0;
+}
+
+.tool-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+/* ================================================
+   LAYERS & SEARCH
+   ================================================ */
+.layer-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.layer-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 4px 0;
+}
+
+.layer-toggle input {
+    accent-color: var(--color-primary);
+}
+
+.layer-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-family: var(--font-family);
+    font-size: 0.875rem;
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.search-box input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-accent-glow);
+}
+
+/* ================================================
+   BUTTONS
+   ================================================ */
+.tool-btn,
+.action-btn,
+.sim-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.tool-btn:hover,
+.action-btn:hover,
+.sim-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.tool-btn.active {
+    background: var(--gradient-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 15px var(--color-accent-glow);
+}
+
+.tool-btn svg,
+.action-btn svg,
+.sim-btn svg {
+    flex-shrink: 0;
+}
+
+.action-btn {
+    width: 100%;
+    justify-content: flex-start;
+    margin-bottom: var(--space-sm);
+}
+
+/* ================================================
+   SIMULATION CONTROLS
+   ================================================ */
+.sim-controls {
+    position: absolute;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    width: 240px;
+}
+
+.control-group {
+    margin-bottom: var(--space-md);
+}
+
+.sim-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.sim-btn.primary {
+    background: var(--gradient-primary);
+    border-color: var(--color-primary);
+}
+
+.control-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.speed-value {
+    color: var(--color-primary-light);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ================================================
+   SLIDER
+   ================================================ */
+.slider {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color-bg-tertiary);
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-primary-light);
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+}
+
+.slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* ================================================
+   INFO PANEL
+   ================================================ */
+.info-panel {
+    position: absolute;
+    bottom: var(--space-lg);
+    left: var(--space-lg);
+    min-width: 200px;
+}
+
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.info-value {
+    font-size: 1rem;
+    color: var(--color-primary-light);
+    font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+}
+
+.help-text {
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--glass-border);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
+kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family);
+    font-size: 0.6875rem;
+    color: var(--color-text-primary);
+}
+
+/* ================================================
+   WELCOME MESSAGE
+   ================================================ */
+.welcome-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    z-index: 1000;
+}
+
+.welcome-message.hidden {
+    display: none;
+}
+
+.welcome-message h1 {
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-bold);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: var(--space-md);
+}
+
+.welcome-message p {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-xl);
+}
+
+.welcome-steps {
+    text-align: left;
+    margin-bottom: var(--space-xl);
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) 0;
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: var(--font-weight-bold);
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.close-welcome {
+    padding: var(--space-md) var(--space-xl);
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: 0 4px 16px var(--color-accent-glow);
+}
+
+.close-welcome:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px var(--color-accent-glow);
+}
+
+/* ================================================
+   RESPONSIVE DESIGN
+   ================================================ */
+@media (max-width: 768px) {
+
+    .toolbar,
+    .sim-controls {
+        width: 180px;
+        padding: var(--space-md);
+    }
+
+    .info-panel {
+        min-width: 180px;
+        padding: var(--space-md);
+    }
+}
+
+.hidden {
+    display: none !important;
+}
+</style>
+<style>
+/* mermaidViewer.css */
+/* mermaidViewer.css - styles for the Mermaid diagram side panel */
+.mermaid-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 30vw;
+    height: 100vh;
+    overflow-y: auto;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(12px);
+    color: #e0e0e0;
+    padding: 1rem;
+    box-sizing: border-box;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+/* hide initially if needed */
+.mermaid-panel.hidden {
+    transform: translateX(100%);
+}
+
+.mermaid-panel .error {
+    color: #ff6b6b;
+}
+</style>
+<style>
+/* docPanel.css */
+/* Documentation Panel Styling */
+.doc-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 260px;
+    height: 100vh;
+    background: rgba(20, 20, 30, 0.85);
+    backdrop-filter: blur(12px);
+    color: #e0e0ff;
+    overflow-y: auto;
+    padding: 1rem;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.4);
+    font-family: 'Inter', sans-serif;
+    z-index: 1000;
+}
+
+.doc-panel h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #ffcc00;
+    text-align: center;
+}
+
+.doc-tree {
+    list-style: none;
+    padding-left: 1rem;
+    margin: 0;
+}
+
+.doc-node {
+    margin: 0.3rem 0;
+}
+
+.doc-label {
+    cursor: pointer;
+    display: inline-block;
+    transition: color 0.2s;
+}
+
+.doc-label:hover {
+    color: #ff99ff;
+}
+
+.doc-label.collapsible::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 4px;
+    transform: rotate(0deg);
+    transition: transform 0.2s;
+}
+
+.doc-node.expanded>.doc-label.collapsible::before {
+    transform: rotate(90deg);
+}
+</style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Canvas Container -->
+        <div id="canvas-container">
+            <canvas id="main-canvas"></canvas>
+            <div id="grid-overlay"></div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar glass-panel">
+            <div class="toolbar-section">
+                <h2 class="toolbar-title">Mindmap Tools</h2>
+                <div class="tool-buttons">
+                    <button class="tool-btn active" data-tool="select" title="Select & Move (V)">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 3L17 10L10 11L7 17L3 3Z" stroke="currentColor" stroke-width="2"
+                                stroke-linejoin="round" />
+                        </svg>
+                        <span>Select</span>
+                    </button>
+                    <button class="tool-btn" data-tool="pan" title="Pan View (Space)">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 3V17M3 10H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            <circle cx="10" cy="10" r="2" fill="currentColor" />
+                        </svg>
+                        <span>Pan</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-section">
+                <h2 class="toolbar-title">Layers</h2>
+                <div class="layer-toggles">
+                    <label class="layer-toggle">
+                        <input type="checkbox" checked data-layer="infra">
+                        <span class="layer-color" style="background: #ff6b6b;"></span>
+                        Infra
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" checked data-layer="backend">
+                        <span class="layer-color" style="background: #4dabf7;"></span>
+                        Backend
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" checked data-layer="frontend">
+                        <span class="layer-color" style="background: #ffd43b;"></span>
+                        Frontend
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" checked data-layer="data">
+                        <span class="layer-color" style="background: #69db7c;"></span>
+                        Data
+                    </label>
+                </div>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-section">
+                <h2 class="toolbar-title">Search</h2>
+                <div class="search-box">
+                    <input type="text" id="node-search" placeholder="Find file or symbol...">
+                </div>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-section">
+                <h2 class="toolbar-title">Actions</h2>
+                <button class="action-btn" id="load-graph-btn" title="Reload Graph Data">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 4V9H9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M20 4L4 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="display:none" /> <!-- Hidden -->
+                        <path d="M16 4C18 6 19 8 19 11C19 16 15 20 10 20C5 20 1 16 1 11C1 8 2 6 4 4"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Reload
+                </button>
+                <button class="action-btn" id="reset-layout-btn" title="Randomize Layout">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        <path d="M16 16L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Shake
+                </button>
+                <button class="action-btn" id="reset-view" title="Reset View (Home)">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="3" width="14" height="14" stroke="currentColor" stroke-width="2" rx="1" />
+                        <circle cx="10" cy="10" r="2" fill="currentColor" />
+                    </svg>
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Simulation Controls -->
+        <div class="sim-controls glass-panel">
+            <h2 class="toolbar-title">Physics</h2>
+            <div class="control-group">
+                <button class="sim-btn primary" id="play-pause">
+                    <svg class="play-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                        style="display: none;">
+                        <path d="M3 2L13 8L3 14V2Z" fill="currentColor" />
+                    </svg>
+                    <svg class="pause-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <rect x="4" y="2" width="3" height="12" fill="currentColor" />
+                        <rect x="9" y="2" width="3" height="12" fill="currentColor" />
+                    </svg>
+                    <span class="btn-text">Pause Physics</span>
+                </button>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    Speed
+                    <span class="speed-value">1.0x</span>
+                </label>
+                <input type="range" id="speed-control" min="0.1" max="3" step="0.1" value="1" class="slider">
+            </div>
+
+            <!-- Hidden Motor Controls -->
+            <div class="control-group motor-controls" style="display: none;">
+                <input type="range" id="motor-speed-control" value="2">
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel glass-panel">
+            <div class="info-content">
+                <div class="info-item">
+                    <span class="info-label">Nodes:</span>
+                    <span class="info-value" id="joint-count">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Edges:</span>
+                    <span class="info-value" id="link-count">0</span>
+                </div>
+            </div>
+            <div class="help-text">
+                <kbd>Space</kbd> Pan • <kbd>Scroll</kbd> Zoom • <kbd>Drag</kbd> Move Node
+            </div>
+        </div>
+
+        <!-- Welcome Message -->
+        <div class="welcome-message glass-panel" id="welcome-message">
+            <h1>🧠 Codebase Mindmap</h1>
+            <p>Explore your project structure as an interactive force-directed graph.</p>
+            <div class="welcome-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span><strong>Files</strong> are blue cards</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span><strong>Classes</strong> are amber circles</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span><strong>Functions</strong> are green dots</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span>Drag nodes to rearrange the layout</span>
+                </div>
+            </div>
+            <button class="close-welcome" id="close-welcome">Start Exploring</button>
+        </div>
+    </div>
+
+    
+    
+     <!-- Added GraphLoader -->
+    
+    
+    
+    
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+        <script>
+            /* Embedded Graph Data */
+            const GRAPH_DATA = {
+  "nodes": [
+    {
+      "id": "file_1",
+      "type": "file",
+      "label": "run_full_docs.sh",
+      "language": "sh",
+      "size": 1633,
+      "layer": "other"
+    },
+    {
+      "id": "file_2",
+      "type": "file",
+      "label": "pyproject.toml",
+      "language": "toml",
+      "size": 540,
+      "layer": "infra"
+    },
+    {
+      "id": "file_3",
+      "type": "file",
+      "label": "README.md",
+      "language": "md",
+      "size": 4842,
+      "layer": "docs"
+    },
+    {
+      "id": "file_4",
+      "type": "file",
+      "label": ".gitignore",
+      "language": "",
+      "size": 382,
+      "layer": "other"
+    },
+    {
+      "id": "file_5",
+      "type": "file",
+      "label": "agentic_doc/config.py",
+      "language": "py",
+      "size": 824,
+      "layer": "backend"
+    },
+    {
+      "id": "file_6",
+      "type": "file",
+      "label": "agentic_doc/cli.py",
+      "language": "py",
+      "size": 2977,
+      "layer": "backend"
+    },
+    {
+      "id": "file_7",
+      "type": "file",
+      "label": "agentic_doc/llm/core.py",
+      "language": "py",
+      "size": 1786,
+      "layer": "backend"
+    },
+    {
+      "id": "file_8",
+      "type": "file",
+      "label": "agentic_doc/llm/providers.py",
+      "language": "py",
+      "size": 1360,
+      "layer": "backend"
+    },
+    {
+      "id": "file_9",
+      "type": "file",
+      "label": "agentic_doc/core/doc_builder.py",
+      "language": "py",
+      "size": 6968,
+      "layer": "backend"
+    },
+    {
+      "id": "file_10",
+      "type": "file",
+      "label": "agentic_doc/core/prompts.py",
+      "language": "py",
+      "size": 983,
+      "layer": "backend"
+    },
+    {
+      "id": "file_11",
+      "type": "file",
+      "label": "agentic_doc/analysis/python.py",
+      "language": "py",
+      "size": 3591,
+      "layer": "backend"
+    },
+    {
+      "id": "file_12",
+      "type": "file",
+      "label": "agentic_doc/analysis/javascript.py",
+      "language": "py",
+      "size": 2401,
+      "layer": "backend"
+    },
+    {
+      "id": "file_13",
+      "type": "file",
+      "label": "agentic_doc/analysis/base.py",
+      "language": "py",
+      "size": 932,
+      "layer": "backend"
+    },
+    {
+      "id": "file_14",
+      "type": "file",
+      "label": "agentic_doc/db/session.py",
+      "language": "py",
+      "size": 552,
+      "layer": "backend"
+    },
+    {
+      "id": "file_15",
+      "type": "file",
+      "label": "agentic_doc/db/schema.py",
+      "language": "py",
+      "size": 1679,
+      "layer": "backend"
+    },
+    {
+      "id": "file_16",
+      "type": "file",
+      "label": "agentic_doc/indexer/core.py",
+      "language": "py",
+      "size": 5494,
+      "layer": "backend"
+    },
+    {
+      "id": "symbol_1",
+      "type": "symbol",
+      "label": "Config",
+      "kind": "class",
+      "file_id": "file_5"
+    },
+    {
+      "id": "symbol_2",
+      "type": "symbol",
+      "label": "load_config",
+      "kind": "function",
+      "file_id": "file_5"
+    },
+    {
+      "id": "symbol_3",
+      "type": "symbol",
+      "label": "save_config",
+      "kind": "function",
+      "file_id": "file_5"
+    },
+    {
+      "id": "symbol_4",
+      "type": "symbol",
+      "label": "init",
+      "kind": "function",
+      "file_id": "file_6"
+    },
+    {
+      "id": "symbol_5",
+      "type": "symbol",
+      "label": "scan",
+      "kind": "function",
+      "file_id": "file_6"
+    },
+    {
+      "id": "symbol_6",
+      "type": "symbol",
+      "label": "doc",
+      "kind": "function",
+      "file_id": "file_6"
+    },
+    {
+      "id": "symbol_7",
+      "type": "symbol",
+      "label": "graph",
+      "kind": "function",
+      "file_id": "file_6"
+    },
+    {
+      "id": "symbol_8",
+      "type": "symbol",
+      "label": "serve",
+      "kind": "function",
+      "file_id": "file_6"
+    },
+    {
+      "id": "symbol_9",
+      "type": "symbol",
+      "label": "LLMClient",
+      "kind": "class",
+      "file_id": "file_7"
+    },
+    {
+      "id": "symbol_10",
+      "type": "symbol",
+      "label": "LLMClient.__init__",
+      "kind": "method",
+      "file_id": "file_7"
+    },
+    {
+      "id": "symbol_11",
+      "type": "symbol",
+      "label": "LLMClient._hash_prompt",
+      "kind": "method",
+      "file_id": "file_7"
+    },
+    {
+      "id": "symbol_12",
+      "type": "symbol",
+      "label": "LLMClient.generate",
+      "kind": "method",
+      "file_id": "file_7"
+    },
+    {
+      "id": "symbol_13",
+      "type": "symbol",
+      "label": "ModelProvider",
+      "kind": "class",
+      "file_id": "file_8"
+    },
+    {
+      "id": "symbol_14",
+      "type": "symbol",
+      "label": "ModelProvider.generate",
+      "kind": "method",
+      "file_id": "file_8"
+    },
+    {
+      "id": "symbol_15",
+      "type": "symbol",
+      "label": "OpenAIProvider",
+      "kind": "class",
+      "file_id": "file_8"
+    },
+    {
+      "id": "symbol_16",
+      "type": "symbol",
+      "label": "OpenAIProvider.__init__",
+      "kind": "method",
+      "file_id": "file_8"
+    },
+    {
+      "id": "symbol_17",
+      "type": "symbol",
+      "label": "OpenAIProvider.generate",
+      "kind": "method",
+      "file_id": "file_8"
+    },
+    {
+      "id": "symbol_18",
+      "type": "symbol",
+      "label": "MockProvider",
+      "kind": "class",
+      "file_id": "file_8"
+    },
+    {
+      "id": "symbol_19",
+      "type": "symbol",
+      "label": "MockProvider.generate",
+      "kind": "method",
+      "file_id": "file_8"
+    },
+    {
+      "id": "symbol_20",
+      "type": "symbol",
+      "label": "get_provider",
+      "kind": "function",
+      "file_id": "file_8"
+    },
+    {
+      "id": "symbol_21",
+      "type": "symbol",
+      "label": "DocBuilder",
+      "kind": "class",
+      "file_id": "file_9"
+    },
+    {
+      "id": "symbol_22",
+      "type": "symbol",
+      "label": "DocBuilder.__init__",
+      "kind": "method",
+      "file_id": "file_9"
+    },
+    {
+      "id": "symbol_23",
+      "type": "symbol",
+      "label": "DocBuilder.generate_file_docs",
+      "kind": "method",
+      "file_id": "file_9"
+    },
+    {
+      "id": "symbol_24",
+      "type": "symbol",
+      "label": "DocBuilder._process_file",
+      "kind": "method",
+      "file_id": "file_9"
+    },
+    {
+      "id": "symbol_25",
+      "type": "symbol",
+      "label": "DocBuilder.generate_dir_docs",
+      "kind": "method",
+      "file_id": "file_9"
+    },
+    {
+      "id": "symbol_26",
+      "type": "symbol",
+      "label": "DocBuilder._process_directory",
+      "kind": "method",
+      "file_id": "file_9"
+    },
+    {
+      "id": "symbol_27",
+      "type": "symbol",
+      "label": "DocBuilder.generate_arch_doc",
+      "kind": "method",
+      "file_id": "file_9"
+    },
+    {
+      "id": "symbol_28",
+      "type": "symbol",
+      "label": "PythonAnalyzer",
+      "kind": "class",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_29",
+      "type": "symbol",
+      "label": "PythonAnalyzer.analyze",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_30",
+      "type": "symbol",
+      "label": "SymbolVisitor",
+      "kind": "class",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_31",
+      "type": "symbol",
+      "label": "SymbolVisitor.__init__",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_32",
+      "type": "symbol",
+      "label": "SymbolVisitor._get_docstring",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_33",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_ClassDef",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_34",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_FunctionDef",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_35",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_AsyncFunctionDef",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_36",
+      "type": "symbol",
+      "label": "SymbolVisitor._visit_function",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_37",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_Import",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_38",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_ImportFrom",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_39",
+      "type": "symbol",
+      "label": "SymbolVisitor.visit_Call",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_40",
+      "type": "symbol",
+      "label": "SymbolVisitor._get_func_name",
+      "kind": "method",
+      "file_id": "file_11"
+    },
+    {
+      "id": "symbol_41",
+      "type": "symbol",
+      "label": "JavaScriptAnalyzer",
+      "kind": "class",
+      "file_id": "file_12"
+    },
+    {
+      "id": "symbol_42",
+      "type": "symbol",
+      "label": "JavaScriptAnalyzer.analyze",
+      "kind": "method",
+      "file_id": "file_12"
+    },
+    {
+      "id": "symbol_43",
+      "type": "symbol",
+      "label": "ExtractedSymbol",
+      "kind": "class",
+      "file_id": "file_13"
+    },
+    {
+      "id": "symbol_44",
+      "type": "symbol",
+      "label": "ExtractedReference",
+      "kind": "class",
+      "file_id": "file_13"
+    },
+    {
+      "id": "symbol_45",
+      "type": "symbol",
+      "label": "AnalysisResult",
+      "kind": "class",
+      "file_id": "file_13"
+    },
+    {
+      "id": "symbol_46",
+      "type": "symbol",
+      "label": "BaseAnalyzer",
+      "kind": "class",
+      "file_id": "file_13"
+    },
+    {
+      "id": "symbol_47",
+      "type": "symbol",
+      "label": "BaseAnalyzer.analyze",
+      "kind": "method",
+      "file_id": "file_13"
+    },
+    {
+      "id": "symbol_48",
+      "type": "symbol",
+      "label": "create_db_and_tables",
+      "kind": "function",
+      "file_id": "file_14"
+    },
+    {
+      "id": "symbol_49",
+      "type": "symbol",
+      "label": "get_session",
+      "kind": "function",
+      "file_id": "file_14"
+    },
+    {
+      "id": "symbol_50",
+      "type": "symbol",
+      "label": "File",
+      "kind": "class",
+      "file_id": "file_15"
+    },
+    {
+      "id": "symbol_51",
+      "type": "symbol",
+      "label": "Directory",
+      "kind": "class",
+      "file_id": "file_15"
+    },
+    {
+      "id": "symbol_52",
+      "type": "symbol",
+      "label": "Symbol",
+      "kind": "class",
+      "file_id": "file_15"
+    },
+    {
+      "id": "symbol_53",
+      "type": "symbol",
+      "label": "Reference",
+      "kind": "class",
+      "file_id": "file_15"
+    },
+    {
+      "id": "symbol_54",
+      "type": "symbol",
+      "label": "LLMCache",
+      "kind": "class",
+      "file_id": "file_15"
+    },
+    {
+      "id": "symbol_55",
+      "type": "symbol",
+      "label": "Indexer",
+      "kind": "class",
+      "file_id": "file_16"
+    },
+    {
+      "id": "symbol_56",
+      "type": "symbol",
+      "label": "Indexer.__init__",
+      "kind": "method",
+      "file_id": "file_16"
+    },
+    {
+      "id": "symbol_57",
+      "type": "symbol",
+      "label": "Indexer._load_ignore_spec",
+      "kind": "method",
+      "file_id": "file_16"
+    },
+    {
+      "id": "symbol_58",
+      "type": "symbol",
+      "label": "Indexer.should_ignore",
+      "kind": "method",
+      "file_id": "file_16"
+    },
+    {
+      "id": "symbol_59",
+      "type": "symbol",
+      "label": "Indexer.get_file_hash",
+      "kind": "method",
+      "file_id": "file_16"
+    },
+    {
+      "id": "symbol_60",
+      "type": "symbol",
+      "label": "Indexer.scan",
+      "kind": "method",
+      "file_id": "file_16"
+    },
+    {
+      "id": "symbol_61",
+      "type": "symbol",
+      "label": "Indexer._process_file",
+      "kind": "method",
+      "file_id": "file_16"
+    },
+    {
+      "id": "symbol_62",
+      "type": "symbol",
+      "label": "scan_codebase",
+      "kind": "function",
+      "file_id": "file_16"
+    }
+  ],
+  "edges": [
+    {
+      "source": "symbol_1",
+      "target": "file_5",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_2",
+      "target": "file_5",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_3",
+      "target": "file_5",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_4",
+      "target": "file_6",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_5",
+      "target": "file_6",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_6",
+      "target": "file_6",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_7",
+      "target": "file_6",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_8",
+      "target": "file_6",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_9",
+      "target": "file_7",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_10",
+      "target": "file_7",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_11",
+      "target": "file_7",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_12",
+      "target": "file_7",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_13",
+      "target": "file_8",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_14",
+      "target": "file_8",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_15",
+      "target": "file_8",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_16",
+      "target": "file_8",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_17",
+      "target": "file_8",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_18",
+      "target": "file_8",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_19",
+      "target": "file_8",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_20",
+      "target": "file_8",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_21",
+      "target": "file_9",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_22",
+      "target": "file_9",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_23",
+      "target": "file_9",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_24",
+      "target": "file_9",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_25",
+      "target": "file_9",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_26",
+      "target": "file_9",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_27",
+      "target": "file_9",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_28",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_29",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_30",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_31",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_32",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_33",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_34",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_35",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_36",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_37",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_38",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_39",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_40",
+      "target": "file_11",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_41",
+      "target": "file_12",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_42",
+      "target": "file_12",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_43",
+      "target": "file_13",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_44",
+      "target": "file_13",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_45",
+      "target": "file_13",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_46",
+      "target": "file_13",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_47",
+      "target": "file_13",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_48",
+      "target": "file_14",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_49",
+      "target": "file_14",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_50",
+      "target": "file_15",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_51",
+      "target": "file_15",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_52",
+      "target": "file_15",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_53",
+      "target": "file_15",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_54",
+      "target": "file_15",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_55",
+      "target": "file_16",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_56",
+      "target": "file_16",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_57",
+      "target": "file_16",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_58",
+      "target": "file_16",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_59",
+      "target": "file_16",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_60",
+      "target": "file_16",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_61",
+      "target": "file_16",
+      "type": "belongs_to"
+    },
+    {
+      "source": "symbol_62",
+      "target": "file_16",
+      "type": "belongs_to"
+    }
+  ],
+  "metadata": {
+    "total_files": 16,
+    "total_symbols": 62
+  }
+};
+            const MERMAID_GRAPH_DATA = `graph TD
+  subgraph agentic_doc["agentic_doc"]
+    file_5["config.py"]
+    sym_1[class: Config]
+    file_5 --> sym_1
+    sym_2[function: load_config]
+    file_5 --> sym_2
+    sym_3[function: save_config]
+    file_5 --> sym_3
+    file_6["cli.py"]
+    sym_4[function: init]
+    file_6 --> sym_4
+    sym_5[function: scan]
+    file_6 --> sym_5
+    sym_6[function: doc]
+    file_6 --> sym_6
+    sym_7[function: graph]
+    file_6 --> sym_7
+    sym_8[function: serve]
+    file_6 --> sym_8
+  end
+  subgraph agentic_doc_analysis["agentic_doc/analysis"]
+    file_11["python.py"]
+    sym_28[class: PythonAnalyzer]
+    file_11 --> sym_28
+    sym_29[method: PythonAnalyzer.analyze]
+    file_11 --> sym_29
+    sym_30[class: SymbolVisitor]
+    file_11 --> sym_30
+    sym_31[method: SymbolVisitor.__init__]
+    file_11 --> sym_31
+    sym_32[method: SymbolVisitor._get_docstring]
+    file_11 --> sym_32
+    file_12["javascript.py"]
+    sym_41[class: JavaScriptAnalyzer]
+    file_12 --> sym_41
+    sym_42[method: JavaScriptAnalyzer.analyze]
+    file_12 --> sym_42
+    file_13["base.py"]
+    sym_43[class: ExtractedSymbol]
+    file_13 --> sym_43
+    sym_44[class: ExtractedReference]
+    file_13 --> sym_44
+    sym_45[class: AnalysisResult]
+    file_13 --> sym_45
+    sym_46[class: BaseAnalyzer]
+    file_13 --> sym_46
+    sym_47[method: BaseAnalyzer.analyze]
+    file_13 --> sym_47
+  end
+  subgraph agentic_doc_core["agentic_doc/core"]
+    file_9["doc_builder.py"]
+    sym_21[class: DocBuilder]
+    file_9 --> sym_21
+    sym_22[method: DocBuilder.__init__]
+    file_9 --> sym_22
+    sym_23[method: DocBuilder.generate_file_docs]
+    file_9 --> sym_23
+    sym_24[method: DocBuilder._process_file]
+    file_9 --> sym_24
+    sym_25[method: DocBuilder.generate_dir_docs]
+    file_9 --> sym_25
+    file_10["prompts.py"]
+  end
+  subgraph agentic_doc_db["agentic_doc/db"]
+    file_14["session.py"]
+    sym_48[function: create_db_and_tables]
+    file_14 --> sym_48
+    sym_49[function: get_session]
+    file_14 --> sym_49
+    file_15["schema.py"]
+    sym_50[class: File]
+    file_15 --> sym_50
+    sym_51[class: Directory]
+    file_15 --> sym_51
+    sym_52[class: Symbol]
+    file_15 --> sym_52
+    sym_53[class: Reference]
+    file_15 --> sym_53
+    sym_54[class: LLMCache]
+    file_15 --> sym_54
+  end
+  subgraph agentic_doc_indexer["agentic_doc/indexer"]
+    file_16["core.py"]
+    sym_55[class: Indexer]
+    file_16 --> sym_55
+    sym_56[method: Indexer.__init__]
+    file_16 --> sym_56
+    sym_57[method: Indexer._load_ignore_spec]
+    file_16 --> sym_57
+    sym_58[method: Indexer.should_ignore]
+    file_16 --> sym_58
+    sym_59[method: Indexer.get_file_hash]
+    file_16 --> sym_59
+  end
+  subgraph agentic_doc_llm["agentic_doc/llm"]
+    file_7["core.py"]
+    sym_9[class: LLMClient]
+    file_7 --> sym_9
+    sym_10[method: LLMClient.__init__]
+    file_7 --> sym_10
+    sym_11[method: LLMClient._hash_prompt]
+    file_7 --> sym_11
+    sym_12[method: LLMClient.generate]
+    file_7 --> sym_12
+    file_8["providers.py"]
+    sym_13[class: ModelProvider]
+    file_8 --> sym_13
+    sym_14[method: ModelProvider.generate]
+    file_8 --> sym_14
+    sym_15[class: OpenAIProvider]
+    file_8 --> sym_15
+    sym_16[method: OpenAIProvider.__init__]
+    file_8 --> sym_16
+    sym_17[method: OpenAIProvider.generate]
+    file_8 --> sym_17
+  end
+  subgraph root["root"]
+    file_1["run_full_docs.sh"]
+    file_2["pyproject.toml"]
+    file_3["README.md"]
+    file_4[".gitignore"]
+  end`;
+
+            // Make globally accessible
+            window.GRAPH_DATA = GRAPH_DATA;
+            window.MERMAID_GRAPH_DATA = MERMAID_GRAPH_DATA;
+            window.embeddedGraphData = GRAPH_DATA;
+        </script>
+        
+
+<script>
+/* canvas.js */
+// ================================================
+// CANVAS SYSTEM - Infinite pan/zoom canvas
+// ================================================
+
+class InfiniteCanvas {
+    constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+
+        // Camera/viewport state
+        this.camera = {
+            x: 0,
+            y: 0,
+            zoom: 1
+        };
+
+        // Panning state
+        this.isPanning = false;
+        this.panStart = { x: 0, y: 0 };
+        this.lastPanPosition = { x: 0, y: 0 };
+
+        // Grid settings
+        this.gridSize = 50;
+        this.gridMajorEvery = 5;
+
+        // Initialize
+        this.setupCanvas();
+        this.setupEventListeners();
+
+        // Animation
+        this.animationFrameId = null;
+        this.isAnimating = false;
+    }
+
+    setupCanvas() {
+        // Set canvas to window size with device pixel ratio
+        const dpr = window.devicePixelRatio || 1;
+        const rect = this.canvas.getBoundingClientRect();
+
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+
+        this.ctx.scale(dpr, dpr);
+
+        this.width = rect.width;
+        this.height = rect.height;
+    }
+
+    setupEventListeners() {
+        // Resize handling
+        window.addEventListener('resize', () => {
+            this.setupCanvas();
+            this.render();
+        });
+
+        // Pan with mouse
+        this.canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 1 || e.button === 0 && e.shiftKey || e.button === 0 && window.currentTool === 'pan') {
+                this.startPan(e.clientX, e.clientY);
+                e.preventDefault();
+            }
+        });
+
+        this.canvas.addEventListener('mousemove', (e) => {
+            if (this.isPanning) {
+                this.updatePan(e.clientX, e.clientY);
+            }
+        });
+
+        this.canvas.addEventListener('mouseup', () => {
+            this.endPan();
+        });
+
+        this.canvas.addEventListener('mouseleave', () => {
+            this.endPan();
+        });
+
+        // Zoom with mouse wheel
+        this.canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+
+            // Zoom towards mouse position
+            const worldPosBefore = this.screenToWorld(mouseX, mouseY);
+            this.camera.zoom *= zoomFactor;
+            this.camera.zoom = Math.max(0.1, Math.min(5, this.camera.zoom));
+            const worldPosAfter = this.screenToWorld(mouseX, mouseY);
+
+            this.camera.x += (worldPosBefore.x - worldPosAfter.x);
+            this.camera.y += (worldPosBefore.y - worldPosAfter.y);
+
+            this.render();
+        }, { passive: false });
+
+        // Keyboard controls
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !e.repeat) {
+                window.currentTool = 'pan';
+                this.canvas.style.cursor = 'grab';
+                e.preventDefault();
+            }
+            if (e.code === 'Home') {
+                this.resetView();
+                e.preventDefault();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                window.currentTool = window.previousTool || 'select';
+                this.canvas.style.cursor = 'default';
+            }
+        });
+    }
+
+    startPan(x, y) {
+        this.isPanning = true;
+        this.panStart = { x, y };
+        this.lastPanPosition = { x: this.camera.x, y: this.camera.y };
+        this.canvas.parentElement.classList.add('panning');
+    }
+
+    updatePan(x, y) {
+        if (!this.isPanning) return;
+
+        const dx = (x - this.panStart.x) / this.camera.zoom;
+        const dy = (y - this.panStart.y) / this.camera.zoom;
+
+        this.camera.x = this.lastPanPosition.x - dx;
+        this.camera.y = this.lastPanPosition.y - dy;
+
+        this.render();
+    }
+
+    endPan() {
+        this.isPanning = false;
+        this.canvas.parentElement.classList.remove('panning');
+    }
+
+    resetView() {
+        this.camera = { x: 0, y: 0, zoom: 1 };
+        this.render();
+    }
+
+    // Coordinate transformations
+    screenToWorld(screenX, screenY) {
+        return {
+            x: (screenX - this.width / 2) / this.camera.zoom + this.camera.x,
+            y: (screenY - this.height / 2) / this.camera.zoom + this.camera.y
+        };
+    }
+
+    worldToScreen(worldX, worldY) {
+        return {
+            x: (worldX - this.camera.x) * this.camera.zoom + this.width / 2,
+            y: (worldY - this.camera.y) * this.camera.zoom + this.height / 2
+        };
+    }
+
+    // Clear canvas
+    clear() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+    }
+
+    // Draw grid
+    drawGrid() {
+        const ctx = this.ctx;
+
+        // Calculate visible world bounds
+        const topLeft = this.screenToWorld(0, 0);
+        const bottomRight = this.screenToWorld(this.width, this.height);
+
+        // Calculate grid bounds
+        const gridSize = this.gridSize;
+        const startX = Math.floor(topLeft.x / gridSize) * gridSize;
+        const startY = Math.floor(topLeft.y / gridSize) * gridSize;
+        const endX = Math.ceil(bottomRight.x / gridSize) * gridSize;
+        const endY = Math.ceil(bottomRight.y / gridSize) * gridSize;
+
+        ctx.save();
+        ctx.lineWidth = 1 / this.camera.zoom;
+
+        // Draw vertical lines
+        for (let x = startX; x <= endX; x += gridSize) {
+            const screenPos = this.worldToScreen(x, 0);
+            const isMajor = (x / gridSize) % this.gridMajorEvery === 0;
+
+            ctx.strokeStyle = isMajor ?
+                'rgba(255, 255, 255, 0.1)' :
+                'rgba(255, 255, 255, 0.05)';
+
+            ctx.beginPath();
+            ctx.moveTo(screenPos.x, 0);
+            ctx.lineTo(screenPos.x, this.height);
+            ctx.stroke();
+        }
+
+        // Draw horizontal lines
+        for (let y = startY; y <= endY; y += gridSize) {
+            const screenPos = this.worldToScreen(0, y);
+            const isMajor = (y / gridSize) % this.gridMajorEvery === 0;
+
+            ctx.strokeStyle = isMajor ?
+                'rgba(255, 255, 255, 0.1)' :
+                'rgba(255, 255, 255, 0.05)';
+
+            ctx.beginPath();
+            ctx.moveTo(0, screenPos.y);
+            ctx.lineTo(this.width, screenPos.y);
+            ctx.stroke();
+        }
+
+        // Draw origin axes
+        const origin = this.worldToScreen(0, 0);
+        ctx.strokeStyle = 'rgba(168, 85, 247, 0.3)';
+        ctx.lineWidth = 2 / this.camera.zoom;
+
+        ctx.beginPath();
+        ctx.moveTo(origin.x, 0);
+        ctx.lineTo(origin.x, this.height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, origin.y);
+        ctx.lineTo(this.width, origin.y);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    // ==========================================
+    // MINDMAP RENDERING
+    // ==========================================
+
+    drawJoint(joint) {
+        const ctx = this.ctx;
+        const screenPos = this.worldToScreen(joint.x, joint.y);
+        const radius = joint.radius * this.camera.zoom;
+        const type = joint.type || 'default';
+
+        ctx.save();
+
+        // Glow effect for selected/hovered
+        if (joint.isSelected || joint.isHovered) {
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#60a5fa';
+        }
+
+        // Draw Node Shape based on type
+        ctx.beginPath();
+
+        if (type === 'file') {
+            // File: Rectangular Card
+            const w = radius * 2.5;
+            const h = radius * 1.8;
+            ctx.roundRect(screenPos.x - w / 2, screenPos.y - h / 2, w, h, 5 * this.camera.zoom);
+            ctx.fillStyle = joint.isSelected ? '#3b82f6' : '#1e3a8a'; // Blue
+            ctx.strokeStyle = '#60a5fa';
+        } else if (type === 'class') {
+            // Class: Circle
+            ctx.arc(screenPos.x, screenPos.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = joint.isSelected ? '#f59e0b' : '#78350f'; // Amber
+            ctx.strokeStyle = '#fbbf24';
+        } else {
+            // Function: Small Pill/Dot
+            ctx.arc(screenPos.x, screenPos.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = joint.isSelected ? '#10b981' : '#064e3b'; // Emerald
+            ctx.strokeStyle = '#34d399';
+        }
+
+        ctx.fill();
+        ctx.lineWidth = 2 * this.camera.zoom;
+        ctx.stroke();
+
+        // Draw Label (LOD: only if zoomed in enough or important)
+        if (this.camera.zoom > 0.4 || joint.isSelected || joint.isHovered) {
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = `${12 * this.camera.zoom}px Inter, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Background for text readability
+            const text = joint.label || joint.id;
+            const metrics = ctx.measureText(text);
+            const padding = 4 * this.camera.zoom;
+
+            // Draw text background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+            const textY = screenPos.y + radius + 15 * this.camera.zoom;
+            ctx.roundRect(
+                screenPos.x - metrics.width / 2 - padding,
+                textY - 10 * this.camera.zoom,
+                metrics.width + padding * 2,
+                20 * this.camera.zoom,
+                4 * this.camera.zoom
+            );
+            ctx.fill();
+
+            // Draw text
+            ctx.fillStyle = '#fff';
+            ctx.fillText(text, screenPos.x, textY);
+        }
+
+        ctx.restore();
+    }
+
+    drawLink(link) {
+        const ctx = this.ctx;
+        const pos1 = this.worldToScreen(link.joint1.x, link.joint1.y);
+        const pos2 = this.worldToScreen(link.joint2.x, link.joint2.y);
+
+        ctx.save();
+
+        // Glow effect for selected/hovered
+        if (link.isSelected || link.isHovered) {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#8b5cf6';
+        }
+
+        ctx.strokeStyle = link.isSelected ? '#fbbf24' : 'rgba(139, 92, 246, 0.4)';
+        ctx.lineWidth = (link.type === 'belongs_to' ? 4 : 2) * this.camera.zoom;
+        ctx.lineCap = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(pos1.x, pos1.y);
+        ctx.lineTo(pos2.x, pos2.y);
+        ctx.stroke();
+
+        // Draw arrow for direction
+        const angle = Math.atan2(pos2.y - pos1.y, pos2.x - pos1.x);
+        const arrowSize = 8 * this.camera.zoom;
+        // Offset arrow to not overlap with node
+        const targetRadius = (link.joint2.radius || 20) * this.camera.zoom;
+        const arrowX = pos2.x - Math.cos(angle) * targetRadius;
+        const arrowY = pos2.y - Math.sin(angle) * targetRadius;
+
+        ctx.beginPath();
+        // Fix arrow drawing
+        ctx.lineTo(
+            arrowX - arrowSize * Math.cos(angle - Math.PI / 6),
+            arrowY - arrowSize * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.lineTo(
+            arrowX - arrowSize * Math.cos(angle + Math.PI / 6),
+            arrowY - arrowSize * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.lineTo(arrowX, arrowY);
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    // Rendering
+    render() {
+        this.clear();
+        this.drawGrid();
+
+        // Trigger custom render event for linkage system
+        if (window.linkageSystem) {
+            window.linkageSystem.render(this);
+        }
+    }
+
+    startAnimation() {
+        if (this.isAnimating) return;
+        this.isAnimating = true;
+        this.animate();
+    }
+
+    stopAnimation() {
+        this.isAnimating = false;
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+    }
+
+    animate() {
+        if (!this.isAnimating) return;
+
+        this.render();
+        this.animationFrameId = requestAnimationFrame(() => this.animate());
+    }
+}
+
+</script>
+<script>
+/* linkage.js */
+// ================================================
+// MINDMAP SYSTEM - Force-Directed Graph Physics
+// ================================================
+
+class Joint {
+    constructor(x, y, isFixed = false) {
+        this.x = x;
+        this.y = y;
+        this.px = x; // Previous position for velocity
+        this.py = y;
+        this.isFixed = isFixed;
+        this.radius = 20; // Dynamic based on type
+        this.isSelected = false;
+        this.isHovered = false;
+        this.id = Math.random().toString(36).substr(2, 9);
+
+        // Node properties
+        this.label = '';
+        this.type = 'default'; // 'file', 'class', 'function'
+        this.mass = 1.0;
+        this.velocity = { x: 0, y: 0 };
+    }
+
+    update(dt) {
+        if (this.isFixed) return;
+
+        // Verlet integration
+        const damping = 0.90; // Higher damping for graph stability
+        const vx = (this.x - this.px) * damping;
+        const vy = (this.y - this.py) * damping;
+
+        this.px = this.x;
+        this.py = this.y;
+
+        this.x += vx;
+        this.y += vy;
+
+        // Store velocity for other calculations if needed
+        this.velocity = { x: vx, y: vy };
+    }
+
+    // Drawing is handled by canvas.js now to keep concerns separated
+    // but we keep a basic debug draw here just in case
+    draw(canvas) {
+        // Delegated to canvas.js
+    }
+
+    containsPoint(worldX, worldY) {
+        const dx = worldX - this.x;
+        const dy = worldY - this.y;
+        return Math.sqrt(dx * dx + dy * dy) <= this.radius;
+    }
+}
+
+class Link {
+    constructor(joint1, joint2) {
+        this.joint1 = joint1;
+        this.joint2 = joint2;
+        this.length = 150; // Ideal spring length
+        this.stiffness = 0.05; // Spring constant (k)
+        this.isSelected = false;
+        this.isHovered = false;
+        this.id = Math.random().toString(36).substr(2, 9);
+        this.type = 'dependency'; // 'dependency', 'hierarchy'
+    }
+
+    // Spring force application
+    applyForce() {
+        const dx = this.joint2.x - this.joint1.x;
+        const dy = this.joint2.y - this.joint1.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance === 0) return;
+
+        // Hooke's Law: F = k * (currentLength - targetLength)
+        const force = (distance - this.length) * this.stiffness;
+
+        const fx = (dx / distance) * force;
+        const fy = (dy / distance) * force;
+
+        if (!this.joint1.isFixed) {
+            this.joint1.x += fx;
+            this.joint1.y += fy;
+        }
+
+        if (!this.joint2.isFixed) {
+            this.joint2.x -= fx;
+            this.joint2.y -= fy;
+        }
+    }
+
+    draw(canvas) {
+        // Delegated to canvas.js
+    }
+
+    containsPoint(worldX, worldY, threshold = 5) {
+        // Distance from point to line segment logic remains same
+        const x1 = this.joint1.x, y1 = this.joint1.y;
+        const x2 = this.joint2.x, y2 = this.joint2.y;
+
+        const A = worldX - x1;
+        const B = worldY - y1;
+        const C = x2 - x1;
+        const D = y2 - y1;
+
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        let param = -1;
+
+        if (lenSq !== 0) param = dot / lenSq;
+
+        let xx, yy;
+
+        if (param < 0) {
+            xx = x1;
+            yy = y1;
+        } else if (param > 1) {
+            xx = x2;
+            yy = y2;
+        } else {
+            xx = x1 + param * C;
+            yy = y1 + param * D;
+        }
+
+        const dx = worldX - xx;
+        const dy = worldY - yy;
+        return Math.sqrt(dx * dx + dy * dy) <= threshold;
+    }
+}
+
+class LinkageSystem {
+    constructor() {
+        this.joints = [];
+        this.links = [];
+        this.isRunning = true; // Always running for graph layout
+        this.simulationSpeed = 1.0;
+
+        // Physics parameters
+        this.repulsionStrength = 2000;
+        this.repulsionRange = 300;
+
+        this.selectedJoint = null;
+        this.selectedLink = null;
+        this.hoveredJoint = null;
+        this.hoveredLink = null;
+        this.draggedJoint = null;
+    }
+
+    addJoint(x, y, isFixed = false) {
+        const joint = new Joint(x, y, isFixed);
+        this.joints.push(joint);
+        return joint;
+    }
+
+    addLink(joint1, joint2) {
+        const exists = this.links.some(link =>
+            (link.joint1 === joint1 && link.joint2 === joint2) ||
+            (link.joint1 === joint2 && link.joint2 === joint1)
+        );
+        if (exists || joint1 === joint2) return null;
+
+        const link = new Link(joint1, joint2);
+        this.links.push(link);
+        return link;
+    }
+
+    clear() {
+        this.joints = [];
+        this.links = [];
+        this.selectedJoint = null;
+        this.selectedLink = null;
+    }
+
+    update() {
+        if (!this.isRunning) return;
+
+        const dt = 0.016 * this.simulationSpeed; // Fixed time step approx 60fps
+
+        // 1. Apply Repulsion (Coulomb-like force)
+        for (let i = 0; i < this.joints.length; i++) {
+            const nodeA = this.joints[i];
+            for (let j = i + 1; j < this.joints.length; j++) {
+                const nodeB = this.joints[j];
+
+                const dx = nodeB.x - nodeA.x;
+                const dy = nodeB.y - nodeA.y;
+                const distSq = dx * dx + dy * dy;
+
+                if (distSq > 0 && distSq < this.repulsionRange * this.repulsionRange) {
+                    const dist = Math.sqrt(distSq);
+                    const force = this.repulsionStrength / (distSq + 0.1); // Avoid division by zero
+
+                    const fx = (dx / dist) * force;
+                    const fy = (dy / dist) * force;
+
+                    if (!nodeA.isFixed) {
+                        nodeA.x -= fx;
+                        nodeA.y -= fy;
+                    }
+                    if (!nodeB.isFixed) {
+                        nodeB.x += fx;
+                        nodeB.y += fy;
+                    }
+                }
+            }
+        }
+
+        // 2. Apply Attraction (Springs)
+        this.links.forEach(link => link.applyForce());
+
+        // 3. Integrate positions
+        this.joints.forEach(joint => joint.update(dt));
+
+        // 4. Center drift correction (optional, keeps graph near origin)
+        // This prevents the whole graph from floating away
+        if (this.joints.length > 0) {
+            let cx = 0, cy = 0;
+            let count = 0;
+            this.joints.forEach(j => {
+                if (!j.isFixed) {
+                    cx += j.x;
+                    cy += j.y;
+                    count++;
+                }
+            });
+            if (count > 0) {
+                cx /= count;
+                cy /= count;
+                const driftFactor = 0.01;
+                this.joints.forEach(j => {
+                    if (!j.isFixed) {
+                        j.x -= cx * driftFactor;
+                        j.y -= cy * driftFactor;
+                    }
+                });
+            }
+        }
+    }
+
+    render(canvas) {
+        // Draw links
+        this.links.forEach(link => {
+            // We need to call canvas.drawLink(link) if we move drawing logic there
+            // For now, we assume canvas.js will iterate and draw, or we call a method on canvas
+            // But the previous architecture called joint.draw(canvas)
+            // Let's keep the pattern but delegate the actual drawing implementation to canvas.js
+            // Wait, canvas.js is the *Canvas* class, it doesn't have drawLink/drawJoint methods usually
+            // The previous code had draw() methods on the classes themselves.
+            // I will update canvas.js to handle the drawing logic to separate concerns as planned.
+            // So here we do nothing or we can call a static renderer.
+            // Actually, the app.js calls system.render(canvas).
+            // So I should iterate here and call canvas.drawLink(link) etc.
+
+            if (canvas.drawLink) canvas.drawLink(link);
+        });
+
+        // Draw joints
+        this.joints.forEach(joint => {
+            if (canvas.drawJoint) canvas.drawJoint(joint);
+        });
+    }
+
+    // Hit testing methods remain same
+    getJointAt(worldX, worldY) {
+        for (let i = this.joints.length - 1; i >= 0; i--) {
+            if (this.joints[i].containsPoint(worldX, worldY)) return this.joints[i];
+        }
+        return null;
+    }
+
+    getLinkAt(worldX, worldY) {
+        for (let i = this.links.length - 1; i >= 0; i--) {
+            if (this.links[i].containsPoint(worldX, worldY)) return this.links[i];
+        }
+        return null;
+    }
+}
+
+</script>
+<script>
+/* graphLoader.js */
+/**
+ * GraphLoader Module
+ * Parses graph data and instantiates interactive LinkageSystem entities.
+ */
+class GraphLoader {
+    constructor(linkageSystem, canvas) {
+        this.system = linkageSystem;
+        this.canvas = canvas;
+        this.nodeMap = new Map(); // Maps node ID to Joint
+    }
+
+    /**
+     * Parses Mermaid string and loads the graph
+     * @param {string} mermaidData - The Mermaid graph string
+     */
+    loadGraph(mermaidData) {
+        if (!mermaidData) return;
+
+        // Check if it's a string (Mermaid) or object (JSON)
+        let graphData;
+        if (typeof mermaidData === 'string') {
+            graphData = this.parseMermaid(mermaidData);
+        } else {
+            graphData = mermaidData;
+        }
+
+        this.renderGraph(graphData);
+    }
+
+    /**
+     * Simple Regex-based Mermaid Parser
+     */
+    parseMermaid(text) {
+        const nodes = [];
+        const edges = [];
+        const nodeMap = new Map();
+
+        const lines = text.split('\n');
+        let currentSubgraph = null;
+
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line || line.startsWith('graph') || line === 'end') return;
+
+            // Subgraph (Directory)
+            if (line.startsWith('subgraph')) {
+                const match = line.match(/subgraph\s+(\w+)\["(.+?)"\]/);
+                if (match) {
+                    const id = match[1];
+                    const label = match[2];
+                    if (!nodeMap.has(id)) {
+                        const node = { id, label, kind: 'directory' };
+                        nodes.push(node);
+                        nodeMap.set(id, node);
+                    }
+                    currentSubgraph = id;
+                }
+                return;
+            }
+
+            // Edges: id1 --> id2
+            if (line.includes('-->')) {
+                const parts = line.split('-->');
+                const sourceId = this.extractId(parts[0]);
+                const targetId = this.extractId(parts[1]);
+                
+                if (sourceId && targetId) {
+                    edges.push({ source: sourceId, target: targetId, relation: 'dependency' });
+                }
+                return;
+            }
+
+            // Nodes: id["label"] or id[label]
+            // Matches: file_18["config.py"] or sym_30[class: Config]
+            const nodeMatch = line.match(/(\w+)\["?(.*?)"?\]/);
+            if (nodeMatch) {
+                const id = nodeMatch[1];
+                let label = nodeMatch[2];
+                let kind = 'file';
+
+                // Heuristic for kind based on label or ID
+                if (label.startsWith('class:')) {
+                    kind = 'class';
+                    label = label.replace('class: ', '');
+                } else if (label.startsWith('function:') || label.startsWith('method:')) {
+                    kind = 'function';
+                    label = label.replace('function: ', '').replace('method: ', '');
+                } else if (id.startsWith('file')) {
+                    kind = 'file';
+                }
+
+                if (!nodeMap.has(id)) {
+                    const node = { id, label, kind };
+                    nodes.push(node);
+                    nodeMap.set(id, node);
+                }
+                
+                // If inside a subgraph, add an edge from subgraph to node (hierarchy)
+                if (currentSubgraph) {
+                    edges.push({ source: currentSubgraph, target: id, relation: 'belongs_to' });
+                }
+            }
+        });
+
+        return { nodes, edges };
+    }
+
+    extractId(str) {
+        const match = str.trim().match(/^(\w+)/);
+        return match ? match[1] : null;
+    }
+
+    /**
+     * Renders the parsed graph data
+     */
+    renderGraph(graphData) {
+        // Clear existing simulation
+        this.system.clear();
+        this.nodeMap.clear();
+
+        if (!graphData || !graphData.nodes) {
+            console.error("Invalid graph data");
+            return;
+        }
+
+        console.log("Loading graph...", graphData.nodes.length, "nodes");
+
+        // 1. Create Joints for Nodes
+        graphData.nodes.forEach((node, index) => {
+            // Initial random layout centered around origin
+            const spread = Math.max(800, graphData.nodes.length * 15);
+            const x = (Math.random() - 0.5) * spread;
+            const y = (Math.random() - 0.5) * spread;
+
+            const joint = this.system.addJoint(x, y);
+
+            // Custom properties for visualization
+            joint.label = node.label || node.id;
+            joint.nodeId = node.id;
+            joint.type = node.kind || 'file'; // 'file', 'class', 'function', 'directory'
+
+            // Set visual properties based on type
+            if (joint.type === 'directory') {
+                joint.radius = 40;
+                joint.mass = 10;
+            } else if (joint.type === 'file') {
+                joint.radius = 30;
+                joint.mass = 5;
+            } else if (joint.type === 'class') {
+                joint.radius = 20;
+                joint.mass = 3;
+            } else {
+                joint.radius = 10;
+                joint.mass = 1;
+            }
+
+            this.nodeMap.set(node.id, joint);
+        });
+
+        // 2. Create Links for Edges
+        if (graphData.edges) {
+            graphData.edges.forEach(edge => {
+                const source = this.nodeMap.get(edge.source);
+                const target = this.nodeMap.get(edge.target);
+
+                if (source && target) {
+                    const link = this.system.addLink(source, target);
+                    if (link) {
+                        link.type = edge.relation || 'dependency';
+                        // Adjust spring length based on relationship
+                        if (link.type === 'belongs_to') {
+                            link.length = 100; // Hierarchy
+                            link.stiffness = 0.08;
+                        } else {
+                            link.length = 250; // Dependency
+                            link.stiffness = 0.03;
+                        }
+                    }
+                }
+            });
+        }
+
+        console.log(`Loaded ${graphData.nodes.length} nodes and ${graphData.edges ? graphData.edges.length : 0} edges.`);
+
+        // Start the simulation
+        this.system.start();
+    }
+}
+
+</script>
+<script>
+/* ui.js */
+// ================================================
+// UI CONTROLLER - Mindmap Controls
+// ================================================
+
+class UIController {
+    constructor(canvas, linkageSystem) {
+        this.canvas = canvas;
+        this.linkageSystem = linkageSystem;
+
+        this.currentTool = 'select';
+        this.isDragging = false;
+        this.dragStartWorld = null;
+
+        // Graph Loader instance
+        this.graphLoader = new GraphLoader(linkageSystem, canvas);
+
+        this.setupToolbar();
+        this.setupLayerToggles(); // New
+        this.setupSearch();       // New
+        this.setupSimulationControls();
+        this.setupCanvas();
+        this.setupWelcome();
+        this.updateStats();
+
+        // Load graph initially if data is available
+        if (window.MERMAID_GRAPH_DATA) {
+            setTimeout(() => {
+                this.graphLoader.loadGraph(window.MERMAID_GRAPH_DATA);
+                this.updateStats();
+            }, 500);
+        }
+    }
+
+    setupToolbar() {
+        // Tool buttons (Simplified for Mindmap)
+        const toolButtons = document.querySelectorAll('.tool-btn');
+        toolButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Only 'select' and 'pan' are relevant now
+                const tool = btn.dataset.tool;
+                if (tool === 'select' || tool === 'pan') {
+                    this.selectTool(tool);
+                    toolButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
+            });
+        });
+
+        // Reset view button
+        document.getElementById('reset-view').addEventListener('click', () => {
+            this.canvas.resetView();
+        });
+
+        // Load Graph Button (New)
+        const loadBtn = document.getElementById('load-graph-btn'); // Will add to HTML
+        if (loadBtn) {
+            loadBtn.addEventListener('click', () => {
+                if (window.MERMAID_GRAPH_DATA) {
+                    this.graphLoader.loadGraph(window.MERMAID_GRAPH_DATA);
+                    this.updateStats();
+                } else {
+                    alert('No graph data found!');
+                }
+            });
+        }
+
+        // Reset Layout Button (New)
+        const layoutBtn = document.getElementById('reset-layout-btn'); // Will add to HTML
+        if (layoutBtn) {
+            layoutBtn.addEventListener('click', () => {
+                this.linkageSystem.joints.forEach(j => {
+                    if (!j.isFixed) {
+                        j.x += (Math.random() - 0.5) * 100;
+                        j.y += (Math.random() - 0.5) * 100;
+                    }
+                });
+                this.linkageSystem.start(); // Ensure physics is running
+            });
+        }
+
+        // Clear all button
+        document.getElementById('clear-all').addEventListener('click', () => {
+            if (confirm('Clear the entire mindmap?')) {
+                this.linkageSystem.clear();
+                this.canvas.render();
+                this.updateStats();
+            }
+        });
+
+        // Keyboard shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+
+            switch (e.key.toLowerCase()) {
+                case 'v':
+                    this.selectTool('select');
+                    break;
+                case 'space':
+                    if (!e.repeat) {
+                        this.selectTool('pan');
+                        this.canvas.canvas.style.cursor = 'grab';
+                    }
+                    break;
+                case 'home':
+                    this.canvas.resetView();
+                    break;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                this.selectTool('select');
+                this.canvas.canvas.style.cursor = 'default';
+            }
+        });
+    }
+
+    setupLayerToggles() {
+        const toggles = document.querySelectorAll('.layer-toggle input');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('change', () => {
+                this.filterNodes();
+            });
+        });
+    }
+
+    setupSearch() {
+        const searchInput = document.getElementById('node-search');
+        if (!searchInput) return;
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            this.filterNodes(term);
+        });
+
+        // Zoom to first match on Enter
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const term = e.target.value.toLowerCase();
+                const match = this.linkageSystem.joints.find(j =>
+                    j.label.toLowerCase().includes(term) && !j.isHidden
+                );
+                if (match) {
+                    // Zoom to node
+                    // This requires canvas to have a method to zoom to point, 
+                    // or we just center view on it.
+                    // For now, let's just center.
+                    this.canvas.offsetX = this.canvas.canvas.width / 2 - match.x * this.canvas.scale;
+                    this.canvas.offsetY = this.canvas.canvas.height / 2 - match.y * this.canvas.scale;
+
+                    // Highlight it
+                    this.linkageSystem.selectedJoint = match;
+                    match.isSelected = true;
+                }
+            }
+        });
+    }
+
+    filterNodes(searchTerm = '') {
+        const activeLayers = Array.from(document.querySelectorAll('.layer-toggle input:checked'))
+            .map(input => input.dataset.layer);
+
+        const searchInput = document.getElementById('node-search');
+        const term = searchTerm || (searchInput ? searchInput.value.toLowerCase() : '');
+
+        this.linkageSystem.joints.forEach(joint => {
+            // Determine layer (default to 'other' if not found in data)
+            // Note: We need to ensure 'layer' property is available on joints.
+            // The GraphLoader needs to pass this through.
+            const layer = joint.data && joint.data.layer ? joint.data.layer : 'other';
+
+            const layerMatch = activeLayers.includes(layer) || layer === 'other'; // Always show 'other' or make it toggleable? 
+            // Let's assume 'other' is always shown or mapped to a default layer.
+            // Actually, let's map unknown layers to 'other' and add a toggle for it if needed.
+            // For now, if layer is missing, we show it.
+
+            const nameMatch = joint.label.toLowerCase().includes(term);
+
+            const isVisible = layerMatch && nameMatch;
+
+            joint.isHidden = !isVisible;
+        });
+
+        // Also hide links connected to hidden nodes
+        this.linkageSystem.links.forEach(link => {
+            link.isHidden = link.joint1.isHidden || link.joint2.isHidden;
+        });
+    }
+
+    setupSimulationControls() {
+        // We keep play/pause for physics
+        const playPauseBtn = document.getElementById('play-pause');
+        if (playPauseBtn) {
+            const playIcon = playPauseBtn.querySelector('.play-icon');
+            const pauseIcon = playPauseBtn.querySelector('.pause-icon');
+            const btnText = playPauseBtn.querySelector('.btn-text');
+
+            playPauseBtn.addEventListener('click', () => {
+                if (this.linkageSystem.isRunning) {
+                    this.linkageSystem.stop();
+                    this.canvas.stopAnimation();
+                    if (playIcon) playIcon.style.display = 'block';
+                    if (pauseIcon) pauseIcon.style.display = 'none';
+                    if (btnText) btnText.textContent = 'Play Physics';
+                } else {
+                    this.linkageSystem.start();
+                    this.canvas.startAnimation();
+                    if (playIcon) playIcon.style.display = 'none';
+                    if (pauseIcon) pauseIcon.style.display = 'block';
+                    if (btnText) btnText.textContent = 'Pause Physics';
+                }
+            });
+        }
+
+        // Hide motor controls as they are not relevant
+        const motorControls = document.querySelector('.motor-controls');
+        if (motorControls) motorControls.style.display = 'none';
+    }
+
+    setupCanvas() {
+        const canvasElement = this.canvas.canvas;
+
+        canvasElement.addEventListener('click', (e) => {
+            if (this.canvas.isPanning) return;
+
+            const rect = canvasElement.getBoundingClientRect();
+            const worldPos = this.canvas.screenToWorld(
+                e.clientX - rect.left,
+                e.clientY - rect.top
+            );
+
+            this.handleCanvasClick(worldPos.x, worldPos.y);
+        });
+
+        canvasElement.addEventListener('mousedown', (e) => {
+            if (e.button !== 0 || this.currentTool !== 'select') return;
+
+            const rect = canvasElement.getBoundingClientRect();
+            const worldPos = this.canvas.screenToWorld(
+                e.clientX - rect.left,
+                e.clientY - rect.top
+            );
+
+            const joint = this.linkageSystem.getJointAt(worldPos.x, worldPos.y);
+            if (joint) {
+                this.isDragging = true;
+                this.linkageSystem.draggedJoint = joint;
+                this.dragStartWorld = worldPos;
+
+                // If physics is paused, we might want to wake it up briefly or just move manually
+                // For mindmap, usually physics is always running or runs on drag
+                if (!this.linkageSystem.isRunning) {
+                    this.linkageSystem.start();
+                    this.canvas.startAnimation();
+                }
+            }
+        });
+
+        canvasElement.addEventListener('mousemove', (e) => {
+            const rect = canvasElement.getBoundingClientRect();
+            const worldPos = this.canvas.screenToWorld(
+                e.clientX - rect.left,
+                e.clientY - rect.top
+            );
+
+            // Handle dragging
+            if (this.isDragging && this.linkageSystem.draggedJoint) {
+                const joint = this.linkageSystem.draggedJoint;
+                if (!joint.isFixed) {
+                    joint.x = worldPos.x;
+                    joint.y = worldPos.y;
+                    // Reset velocity on drag to prevent shooting off
+                    joint.px = worldPos.x;
+                    joint.py = worldPos.y;
+                }
+                // No need to call render here if animation loop is running
+                return;
+            }
+
+            // Update hover state
+            this.updateHoverState(worldPos.x, worldPos.y);
+        });
+
+        canvasElement.addEventListener('mouseup', () => {
+            this.isDragging = false;
+            this.linkageSystem.draggedJoint = null;
+        });
+
+        canvasElement.addEventListener('mouseleave', () => {
+            this.isDragging = false;
+            this.linkageSystem.draggedJoint = null;
+            this.clearHoverState();
+        });
+    }
+
+    setupWelcome() {
+        const welcomeMessage = document.getElementById('welcome-message');
+        if (welcomeMessage) {
+            welcomeMessage.innerHTML = `
+                <h2>Codebase Mindmap</h2>
+                <p>Explore your project structure interactively.</p>
+                <ul>
+                    <li>🖱️ <strong>Drag</strong> nodes to rearrange</li>
+                    <li>📜 <strong>Scroll</strong> to zoom</li>
+                    <li>␣ <strong>Space</strong> to pan</li>
+                </ul>
+                <button id="close-welcome" class="primary-btn">Start Exploring</button>
+            `;
+
+            const closeBtn = document.getElementById('close-welcome');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    welcomeMessage.classList.add('hidden');
+                });
+            }
+        }
+    }
+
+    selectTool(tool) {
+        window.previousTool = this.currentTool;
+        this.currentTool = tool;
+        window.currentTool = tool;
+    }
+
+    handleCanvasClick(worldX, worldY) {
+        if (this.currentTool === 'select') {
+            this.handleSelect(worldX, worldY);
+        }
+    }
+
+    handleSelect(worldX, worldY) {
+        // Clear previous selection
+        this.linkageSystem.joints.forEach(j => j.isSelected = false);
+        this.linkageSystem.links.forEach(l => l.isSelected = false);
+
+        // Select joint or link
+        const joint = this.linkageSystem.getJointAt(worldX, worldY);
+        if (joint) {
+            joint.isSelected = true;
+            this.linkageSystem.selectedJoint = joint;
+            console.log("Selected Node:", joint.label, joint.type);
+            // TODO: Show details in side panel
+        } else {
+            const link = this.linkageSystem.getLinkAt(worldX, worldY);
+            if (link) {
+                link.isSelected = true;
+                this.linkageSystem.selectedLink = link;
+            }
+        }
+
+        this.canvas.render();
+    }
+
+    updateHoverState(worldX, worldY) {
+        let changed = false;
+
+        // Clear previous hover
+        if (this.linkageSystem.hoveredJoint) {
+            this.linkageSystem.hoveredJoint.isHovered = false;
+            this.linkageSystem.hoveredJoint = null;
+            changed = true;
+        }
+        if (this.linkageSystem.hoveredLink) {
+            this.linkageSystem.hoveredLink.isHovered = false;
+            this.linkageSystem.hoveredLink = null;
+            changed = true;
+        }
+
+        // Set new hover
+        const joint = this.linkageSystem.getJointAt(worldX, worldY);
+        if (joint) {
+            joint.isHovered = true;
+            this.linkageSystem.hoveredJoint = joint;
+            changed = true;
+            this.canvas.canvas.style.cursor = 'pointer';
+        } else {
+            const link = this.linkageSystem.getLinkAt(worldX, worldY);
+            if (link) {
+                link.isHovered = true;
+                this.linkageSystem.hoveredLink = link;
+                changed = true;
+                this.canvas.canvas.style.cursor = 'pointer';
+            } else {
+                this.canvas.canvas.style.cursor = this.currentTool === 'pan' ? 'grab' : 'default';
+            }
+        }
+    }
+
+    clearHoverState() {
+        if (this.linkageSystem.hoveredJoint) {
+            this.linkageSystem.hoveredJoint.isHovered = false;
+            this.linkageSystem.hoveredJoint = null;
+        }
+        if (this.linkageSystem.hoveredLink) {
+            this.linkageSystem.hoveredLink.isHovered = false;
+            this.linkageSystem.hoveredLink = null;
+        }
+    }
+
+    updateStats() {
+        if (window.linkageSystem) {
+            const nodeCount = window.linkageSystem.joints.length;
+            const linkCount = window.linkageSystem.links.length;
+            console.log('UI UpdateStats:', nodeCount, 'nodes', linkCount, 'links');
+
+            const nodeCountEl = document.getElementById('joint-count');
+            const linkCountEl = document.getElementById('link-count');
+
+            if (nodeCountEl) nodeCountEl.textContent = nodeCount;
+            if (linkCountEl) linkCountEl.textContent = linkCount;
+        }
+    }
+}
+
+</script>
+<script>
+/* docPanel.js */
+/**
+ * Documentation Panel Module
+ * Renders a collapsible tree view of the project's code structure.
+ * Expects a JSON manifest at `/doc_manifest.json`.
+ */
+class DocPanel {
+    constructor(containerId = 'doc-panel') {
+        this.container = document.getElementById(containerId);
+        if (!this.container) {
+            this.container = document.createElement('div');
+            this.container.id = containerId;
+            this.container.className = 'doc-panel';
+            document.body.appendChild(this.container);
+        }
+        this.loadManifest();
+    }
+
+    async loadManifest() {
+        try {
+            const res = await fetch('doc_manifest.json');
+            if (!res.ok) throw new Error('Failed to load manifest');
+            const data = await res.json();
+            this.renderTree(data);
+        } catch (e) {
+            console.error('DocPanel error:', e);
+            this.container.innerHTML = `<p class="error">❌ Unable to load documentation.</p>`;
+        }
+    }
+
+    renderTree(node, parent = this.container) {
+        const ul = document.createElement('ul');
+        ul.className = 'doc-tree';
+        parent.appendChild(ul);
+        for (const key of Object.keys(node)) {
+            const li = document.createElement('li');
+            li.className = 'doc-node';
+            const item = node[key];
+            const hasChildren = typeof item === 'object' && item !== null && Object.keys(item).length > 0;
+            const label = document.createElement('span');
+            label.textContent = key;
+            label.className = 'doc-label';
+            li.appendChild(label);
+            if (hasChildren) {
+                label.classList.add('collapsible');
+                label.addEventListener('click', () => {
+                    li.classList.toggle('expanded');
+                });
+                this.renderTree(item, li);
+            }
+            ul.appendChild(li);
+        }
+    }
+}
+
+// Initialize when DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+    new DocPanel();
+});
+
+</script>
+<script>
+/* mermaidViewer.js */
+// mermaidViewer.js - loads and renders Mermaid diagram
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.createElement('div');
+    container.id = 'mermaid-panel';
+    container.className = 'mermaid-panel glass-panel';
+    document.body.appendChild(container);
+
+    // Initialize mermaid
+    if (window.mermaid) {
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    }
+
+    // Try to load from global variable first (avoids CORS on file://)
+    if (typeof MERMAID_GRAPH_DATA !== 'undefined') {
+        renderMermaid(MERMAID_GRAPH_DATA);
+    } else {
+        // Fallback to fetch
+        fetch('graph.mmd')
+            .then(res => res.text())
+            .then(data => renderMermaid(data))
+            .catch(err => {
+                container.innerHTML = '<p class="error">Failed to load Mermaid diagram. (CORS or file not found)</p>';
+                console.error(err);
+            });
+    }
+
+    function renderMermaid(data) {
+        container.innerHTML = `<div class="mermaid">${data}</div>`;
+        mermaid.contentLoaded();
+    }
+});
+
+</script>
+<script>
+/* app.js */
+// ================================================
+// MAIN APPLICATION - Initialize and orchestrate
+// ================================================
+
+// Global state
+window.currentTool = 'select';
+window.previousTool = 'select';
+
+// Application initialization
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize systems
+    const canvas = new InfiniteCanvas('main-canvas');
+    const linkageSystem = new LinkageSystem();
+    const ui = new UIController(canvas, linkageSystem);
+
+    // Make globally accessible
+    window.canvas = canvas;
+    window.linkageSystem = linkageSystem;
+    window.ui = ui;
+
+    // Initial render
+    canvas.render();
+
+    // Start animation loop for smooth rendering
+    function animate() {
+        if (linkageSystem.isRunning) {
+            linkageSystem.update();
+        }
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    console.log('🔗 Linkage Visualizer initialized!');
+    console.log('Tools: Select (V), Fixed Point (F), Joint (J), Link (L), Motor (M), Delete');
+    console.log('Controls: Space to pan, Scroll to zoom, Home to reset view');
+});
+
+</script>
+</body>
+
+</html>

@@ -40,6 +40,7 @@ class GraphExporter:
                     "label": file.rel_path,
                     "language": file.language,
                     "size": file.size,
+                    "layer": self._get_layer(file.rel_path),
                 }
             )
 
@@ -267,6 +268,21 @@ class GraphExporter:
             "import": "lightgray",
         }
         return colors.get(kind, "white")
+
+    def _get_layer(self, file_path: str) -> str:
+        """Determine the architectural layer of a file."""
+        path = file_path.lower()
+        if any(x in path for x in ["dockerfile", ".yml", ".yaml", "requirements.txt", "package.json", "pyproject.toml", ".env"]):
+            return "infra"
+        if path.endswith(".py"):
+            return "backend"
+        if any(path.endswith(x) for x in [".js", ".jsx", ".ts", ".tsx", ".css", ".html"]):
+            return "frontend"
+        if any(path.endswith(x) for x in [".sql", ".db"]):
+            return "data"
+        if path.endswith(".md"):
+            return "docs"
+        return "other"
 
     def close(self):
         """Close database session."""

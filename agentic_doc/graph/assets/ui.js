@@ -15,6 +15,8 @@ class UIController {
         this.graphLoader = new GraphLoader(linkageSystem, canvas);
 
         this.setupToolbar();
+        this.setupLayerToggles(); // New
+        this.setupSearch();       // New
         this.setupSimulationControls();
         this.setupCanvas();
         this.setupWelcome();
@@ -110,6 +112,78 @@ class UIController {
                 this.selectTool('select');
                 this.canvas.canvas.style.cursor = 'default';
             }
+        });
+    }
+
+    setupLayerToggles() {
+        const toggles = document.querySelectorAll('.layer-toggle input');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('change', () => {
+                this.filterNodes();
+            });
+        });
+    }
+
+    setupSearch() {
+        const searchInput = document.getElementById('node-search');
+        if (!searchInput) return;
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            this.filterNodes(term);
+        });
+
+        // Zoom to first match on Enter
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const term = e.target.value.toLowerCase();
+                const match = this.linkageSystem.joints.find(j =>
+                    j.label.toLowerCase().includes(term) && !j.isHidden
+                );
+                if (match) {
+                    // Zoom to node
+                    // This requires canvas to have a method to zoom to point, 
+                    // or we just center view on it.
+                    // For now, let's just center.
+                    this.canvas.offsetX = this.canvas.canvas.width / 2 - match.x * this.canvas.scale;
+                    this.canvas.offsetY = this.canvas.canvas.height / 2 - match.y * this.canvas.scale;
+
+                    // Highlight it
+                    this.linkageSystem.selectedJoint = match;
+                    match.isSelected = true;
+                }
+            }
+        });
+    }
+
+    filterNodes(searchTerm = '') {
+        const activeLayers = Array.from(document.querySelectorAll('.layer-toggle input:checked'))
+            .map(input => input.dataset.layer);
+
+        const searchInput = document.getElementById('node-search');
+        const term = searchTerm || (searchInput ? searchInput.value.toLowerCase() : '');
+
+        this.linkageSystem.joints.forEach(joint => {
+            // Determine layer (default to 'other' if not found in data)
+            // Note: We need to ensure 'layer' property is available on joints.
+            // The GraphLoader needs to pass this through.
+            const layer = joint.data && joint.data.layer ? joint.data.layer : 'other';
+
+            const layerMatch = activeLayers.includes(layer) || layer === 'other'; // Always show 'other' or make it toggleable? 
+            // Let's assume 'other' is always shown or mapped to a default layer.
+            // Actually, let's map unknown layers to 'other' and add a toggle for it if needed.
+            // For now, if layer is missing, we show it.
+
+            const nameMatch = joint.label.toLowerCase().includes(term);
+
+            const isVisible = layerMatch && nameMatch;
+
+            joint.isHidden = !isVisible;
+        });
+
+        // Also hide links connected to hidden nodes
+        this.linkageSystem.links.forEach(link => {
+            link.isHidden = link.joint1.isHidden || link.joint2.isHidden;
         });
     }
 

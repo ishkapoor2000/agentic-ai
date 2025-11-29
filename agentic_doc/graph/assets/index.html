@@ -47,6 +47,43 @@
             <div class="toolbar-divider"></div>
 
             <div class="toolbar-section">
+                <h2 class="toolbar-title">Layers</h2>
+                <div class="layer-toggles">
+                    <label class="layer-toggle">
+                        <input type="checkbox" checked data-layer="infra">
+                        <span class="layer-color" style="background: #ff6b6b;"></span>
+                        Infra
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" checked data-layer="backend">
+                        <span class="layer-color" style="background: #4dabf7;"></span>
+                        Backend
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" checked data-layer="frontend">
+                        <span class="layer-color" style="background: #ffd43b;"></span>
+                        Frontend
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" checked data-layer="data">
+                        <span class="layer-color" style="background: #69db7c;"></span>
+                        Data
+                    </label>
+                </div>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-section">
+                <h2 class="toolbar-title">Search</h2>
+                <div class="search-box">
+                    <input type="text" id="node-search" placeholder="Find file or symbol...">
+                </div>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-section">
                 <h2 class="toolbar-title">Actions</h2>
                 <button class="action-btn" id="load-graph-btn" title="Reload Graph Data">
                     <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
@@ -57,30 +94,21 @@
                         <path d="M16 4C18 6 19 8 19 11C19 16 15 20 10 20C5 20 1 16 1 11C1 8 2 6 4 4"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
-                    Reload Graph
+                    Reload
                 </button>
                 <button class="action-btn" id="reset-layout-btn" title="Randomize Layout">
                     <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                         <path d="M16 16L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                         <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2" />
                     </svg>
-                    Shake Layout
+                    Shake
                 </button>
                 <button class="action-btn" id="reset-view" title="Reset View (Home)">
                     <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                         <rect x="3" y="3" width="14" height="14" stroke="currentColor" stroke-width="2" rx="1" />
                         <circle cx="10" cy="10" r="2" fill="currentColor" />
                     </svg>
-                    Reset View
-                </button>
-                <button class="action-btn" id="clear-all" title="Clear Canvas">
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                        <line x1="5" y1="5" x2="15" y2="15" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" />
-                        <line x1="15" y1="5" x2="5" y2="15" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" />
-                    </svg>
-                    Clear All
+                    Reset
                 </button>
             </div>
         </div>

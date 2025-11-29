@@ -6,6 +6,7 @@ from pathspec import PathSpec
 from pathspec.patterns import GitWildMatchPattern
 from sqlmodel import Session, select
 
+from agentic_doc.analysis.infra import InfraAnalyzer
 from agentic_doc.analysis.javascript import JavaScriptAnalyzer
 from agentic_doc.analysis.python import PythonAnalyzer
 from agentic_doc.config import load_config
@@ -25,6 +26,13 @@ class Indexer:
             ".jsx": JavaScriptAnalyzer(),
             ".ts": JavaScriptAnalyzer(),
             ".tsx": JavaScriptAnalyzer(),
+            # Infra files
+            "Dockerfile": InfraAnalyzer(),
+            ".yml": InfraAnalyzer(),
+            ".yaml": InfraAnalyzer(),
+            ".json": InfraAnalyzer(), # For package.json
+            ".txt": InfraAnalyzer(), # For requirements.txt
+            ".toml": InfraAnalyzer(), # For pyproject.toml
         }
 
     def _load_ignore_spec(self) -> PathSpec:
@@ -141,7 +149,7 @@ class Indexer:
             session.refresh(db_file)
 
         # Analyze content
-        analyzer = self.analyzers.get(path.suffix)
+        analyzer = self.analyzers.get(path.name) or self.analyzers.get(path.suffix)
         if analyzer:
             try:
                 content = path.read_text(errors="ignore")

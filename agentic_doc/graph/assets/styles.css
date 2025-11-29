@@ -174,6 +174,59 @@ body {
 }
 
 /* ================================================
+   LAYERS & SEARCH
+   ================================================ */
+.layer-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.layer-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 4px 0;
+}
+
+.layer-toggle input {
+    accent-color: var(--color-primary);
+}
+
+.layer-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-family: var(--font-family);
+    font-size: 0.875rem;
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.search-box input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-accent-glow);
+}
+
+/* ================================================
    BUTTONS
    ================================================ */
 .tool-btn,
