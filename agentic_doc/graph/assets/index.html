@@ -144,7 +144,19 @@
             </div>
         </div>
 
-        <!-- Info Panel -->
+        <!-- Magic Panel (Side Panel) -->
+        <div id="magic-panel" class="magic-panel glass-panel hidden">
+            <div class="magic-header">
+                <h2 class="magic-title">Select a Node</h2>
+                <div class="magic-subtitle">Click on any node to see details</div>
+            </div>
+            <div class="magic-body">
+                <p class="magic-desc">Explore your codebase by interacting with the graph.</p>
+                <div class="magic-meta"></div>
+            </div>
+        </div>
+
+        <!-- Info Panel (Bottom Left) -->
         <div class="info-panel glass-panel">
             <div class="info-content">
                 <div class="info-item">
@@ -154,6 +166,12 @@
                 <div class="info-item">
                     <span class="info-label">Edges:</span>
                     <span class="info-value" id="link-count">0</span>
+                </div>
+                <div class="info-item">
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="heatmap-toggle">
+                        <span class="info-label">🔥 Heatmap</span>
+                    </label>
                 </div>
             </div>
             <div class="help-text">

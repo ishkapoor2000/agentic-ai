@@ -33,6 +33,8 @@ class Symbol(SQLModel, table=True):
     line_start: int
     line_end: int
     docstring: str | None = None
+    route_path: str | None = None  # API Route path (e.g. /users)
+    route_method: str | None = None  # API Method (e.g. GET, POST)
 
     file: File = Relationship(back_populates="symbols")
 
@@ -51,3 +53,11 @@ class LLMCache(SQLModel, table=True):
     model: str
     response: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Route(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    path: str
+    method: str
+    symbol_id: int = Field(foreign_key="symbol.id")
+

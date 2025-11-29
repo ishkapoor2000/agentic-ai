@@ -229,7 +229,7 @@ By Provider:
 
 ---
 
-## 🗺️ Interactive Mindmap
+## 🗺️ Interactive Mindmap (v2.0)
 
 The mindmap feature creates a beautiful, interactive visualization of your codebase:
 
@@ -237,6 +237,14 @@ The mindmap feature creates a beautiful, interactive visualization of your codeb
 - **Interactive exploration** with zoom, pan, and search
 - **Dependency visualization** showing relationships
 - **Standalone HTML** - no server required
+
+### ✨ New "Magic" Features
+
+- **🚀 API Route Visualization**: Automatically detects and highlights API routes (FastAPI/Flask) with method and path.
+- **🔥 Criticality Heatmap**: Toggle "Heatmap" mode to instantly see the most heavily used components ("hot spots").
+- **📦 Infrastructure Layer**: Visualizes Dockerfiles, CI/CD workflows, and package dependencies.
+- **🎨 Layered View**: Toggle between Infra, Backend, Frontend, and Data layers to focus your view.
+- **🔮 Magic Panel**: Click any node for a simple, human-readable explanation of what it does.
 
 ---
 

@@ -87,6 +87,14 @@ class UIController {
             }
         });
 
+        // Heatmap Toggle (New)
+        const heatmapToggle = document.getElementById('heatmap-toggle'); // Will add to HTML
+        if (heatmapToggle) {
+            heatmapToggle.addEventListener('change', (e) => {
+                this.toggleHeatmap(e.target.checked);
+            });
+        }
+
         // Keyboard shortcuts
         window.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT') return;
@@ -295,24 +303,12 @@ class UIController {
 
     setupWelcome() {
         const welcomeMessage = document.getElementById('welcome-message');
-        if (welcomeMessage) {
-            welcomeMessage.innerHTML = `
-                <h2>Codebase Mindmap</h2>
-                <p>Explore your project structure interactively.</p>
-                <ul>
-                    <li>🖱️ <strong>Drag</strong> nodes to rearrange</li>
-                    <li>📜 <strong>Scroll</strong> to zoom</li>
-                    <li>␣ <strong>Space</strong> to pan</li>
-                </ul>
-                <button id="close-welcome" class="primary-btn">Start Exploring</button>
-            `;
+        const closeBtn = document.getElementById('close-welcome');
 
-            const closeBtn = document.getElementById('close-welcome');
-            if (closeBtn) {
-                closeBtn.addEventListener('click', () => {
-                    welcomeMessage.classList.add('hidden');
-                });
-            }
+        if (closeBtn && welcomeMessage) {
+            closeBtn.addEventListener('click', () => {
+                welcomeMessage.classList.add('hidden');
+            });
         }
     }
 
@@ -339,15 +335,92 @@ class UIController {
             joint.isSelected = true;
             this.linkageSystem.selectedJoint = joint;
             console.log("Selected Node:", joint.label, joint.type);
-            // TODO: Show details in side panel
+
+            // Show Magic Panel
+            this.showMagicPanel(joint);
         } else {
             const link = this.linkageSystem.getLinkAt(worldX, worldY);
             if (link) {
                 link.isSelected = true;
                 this.linkageSystem.selectedLink = link;
             }
+            this.hideMagicPanel();
         }
 
+        this.canvas.render();
+    }
+
+    showMagicPanel(node) {
+        const panel = document.getElementById('magic-panel');
+        if (!panel) return;
+
+        const title = panel.querySelector('.magic-title');
+        const subtitle = panel.querySelector('.magic-subtitle');
+        const desc = panel.querySelector('.magic-desc');
+        const meta = panel.querySelector('.magic-meta');
+
+        // Reset
+        panel.classList.remove('hidden');
+        panel.className = 'magic-panel glass-panel'; // Reset classes
+
+        // Title & Icon
+        let icon = '📦';
+        if (node.type === 'file') icon = '📄';
+        if (node.data.kind === 'class') icon = '🧩';
+        if (node.data.kind === 'function') icon = 'ƒ';
+
+        // API Route Magic
+        if (node.data.route_path) {
+            icon = '🚀';
+            panel.classList.add('is-route');
+            title.innerHTML = `${icon} ${node.data.route_method} ${node.data.route_path}`;
+            subtitle.textContent = `API Route • ${node.label}`;
+        } else {
+            title.innerHTML = `${icon} ${node.label}`;
+            subtitle.textContent = `${node.type} • ${node.data.kind || ''}`;
+        }
+
+        // Description (Docstring or Generated)
+        if (node.data.docstring) {
+            // Simple cleanup of docstring
+            const cleanDoc = node.data.docstring.split('\n')[0].trim();
+            desc.textContent = cleanDoc;
+        } else {
+            desc.textContent = "No documentation available.";
+        }
+
+        // Metadata (Criticality)
+        const criticality = node.data.criticality || 0;
+        let hotness = '❄️ Cold';
+        if (criticality > 5) hotness = '🔥 Hot';
+        if (criticality > 20) hotness = '🌋 Critical';
+
+        meta.innerHTML = `
+            <div class="meta-item">
+                <span class="meta-label">Criticality</span>
+                <span class="meta-value">${hotness} (${criticality} refs)</span>
+            </div>
+        `;
+    }
+
+    hideMagicPanel() {
+        const panel = document.getElementById('magic-panel');
+        if (panel) panel.classList.add('hidden');
+    }
+
+    toggleHeatmap(enabled) {
+        this.linkageSystem.joints.forEach(j => {
+            if (enabled) {
+                const criticality = j.data.criticality || 0;
+                // Scale radius based on criticality (base 5, max 20)
+                j.r = 5 + Math.min(15, criticality / 2);
+                // Opacity handled in renderer or by class
+                j.isHeatmap = true;
+            } else {
+                j.r = 5; // Reset radius
+                j.isHeatmap = false;
+            }
+        });
         this.canvas.render();
     }
 

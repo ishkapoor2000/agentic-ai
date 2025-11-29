@@ -9,6 +9,8 @@ class ExtractedSymbol:
     line_start: int
     line_end: int
     docstring: str | None = None
+    route_path: str | None = None
+    route_method: str | None = None
 
 
 @dataclass
@@ -20,9 +22,18 @@ class ExtractedReference:
 
 
 @dataclass
+class ExtractedRoute:
+    path: str
+    method: str
+    view_func: str  # Name of the function handling the route
+    line_number: int
+
+
+@dataclass
 class AnalysisResult:
     symbols: list[ExtractedSymbol] = field(default_factory=list)
     references: list[ExtractedReference] = field(default_factory=list)
+    routes: list[ExtractedRoute] = field(default_factory=list)
 
 
 class BaseAnalyzer(ABC):

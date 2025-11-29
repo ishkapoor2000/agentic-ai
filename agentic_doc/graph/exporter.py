@@ -5,6 +5,7 @@ Supports JSON, DOT (Graphviz), and Mermaid formats.
 
 import json
 
+from sqlalchemy import func as sa_func
 from sqlmodel import select
 
 from agentic_doc.db.schema import File, Symbol
@@ -44,8 +45,30 @@ class GraphExporter:
                 }
             )
 
+        # Calculate criticality (usage count)
+        from collections import Counter
+        from agentic_doc.db.schema import Reference, Route
+        
+        ref_counts = self.session.exec(
+            select(Reference.target_symbol_id, sa_func.count(Reference.id))
+            .group_by(Reference.target_symbol_id)
+        ).all()
+        criticality_map = {sym_id: count for sym_id, count in ref_counts}
+
+        # Fetch Routes
+        routes = self.session.exec(select(Route)).all()
+        route_map = {r.symbol_id: r for r in routes}
+
         # Symbol nodes
         for symbol in symbols:
+            # Get route info from Symbol (decorators) OR Route table (add_url_rule)
+            r_path = symbol.route_path
+            r_method = symbol.route_method
+            
+            if not r_path and symbol.id in route_map:
+                r_path = route_map[symbol.id].path
+                r_method = route_map[symbol.id].method
+
             nodes.append(
                 {
                     "id": f"symbol_{symbol.id}",
@@ -53,6 +76,10 @@ class GraphExporter:
                     "label": symbol.name,
                     "kind": symbol.kind,
                     "file_id": f"file_{symbol.file_id}",
+                    "route_path": r_path,
+                    "route_method": r_method,
+                    "criticality": criticality_map.get(symbol.id, 0),
+                    "docstring": symbol.docstring, # Include docstring for Magic Panel
                 }
             )
 

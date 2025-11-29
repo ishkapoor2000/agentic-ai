@@ -97,6 +97,8 @@ body {
     height: 100%;
     cursor: grab;
     background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    z-index: 0;
+    /* Ensure canvas stays behind modals */
 }
 
 #canvas-container.panning {
@@ -492,6 +494,90 @@ kbd {
         min-width: 180px;
         padding: var(--space-md);
     }
+}
+
+/* ================================================
+   MAGIC PANEL
+   ================================================ */
+.magic-panel {
+    position: absolute;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    width: 300px;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    z-index: 50;
+    transition: all var(--transition-normal);
+}
+
+.magic-panel.hidden {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.magic-header {
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.magic-title {
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-xs);
+    word-break: break-word;
+}
+
+.magic-subtitle {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+.magic-desc {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-lg);
+}
+
+.magic-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-md);
+}
+
+.meta-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.05em;
+}
+
+.meta-value {
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+/* API Route Styling */
+.magic-panel.is-route {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
+}
+
+.magic-panel.is-route .magic-title {
+    color: var(--color-accent);
 }
 
 .hidden {

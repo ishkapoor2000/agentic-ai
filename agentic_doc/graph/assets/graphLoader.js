@@ -63,7 +63,7 @@ class GraphLoader {
                 const parts = line.split('-->');
                 const sourceId = this.extractId(parts[0]);
                 const targetId = this.extractId(parts[1]);
-                
+
                 if (sourceId && targetId) {
                     edges.push({ source: sourceId, target: targetId, relation: 'dependency' });
                 }
@@ -94,7 +94,7 @@ class GraphLoader {
                     nodes.push(node);
                     nodeMap.set(id, node);
                 }
-                
+
                 // If inside a subgraph, add an edge from subgraph to node (hierarchy)
                 if (currentSubgraph) {
                     edges.push({ source: currentSubgraph, target: id, relation: 'belongs_to' });
@@ -137,7 +137,10 @@ class GraphLoader {
             // Custom properties for visualization
             joint.label = node.label || node.id;
             joint.nodeId = node.id;
-            joint.type = node.kind || 'file'; // 'file', 'class', 'function', 'directory'
+            joint.type = node.type || node.kind || 'file'; // 'file', 'class', 'function', 'directory'
+
+            // CRITICAL: Store full node data for Magic Panel & Heatmap
+            joint.data = node;
 
             // Set visual properties based on type
             if (joint.type === 'directory') {

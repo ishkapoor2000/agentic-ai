@@ -166,10 +166,58 @@ class Indexer:
                         line_start=sym.line_start,
                         line_end=sym.line_end,
                         docstring=sym.docstring,
+                        route_path=sym.route_path,
+                        route_method=sym.route_method,
                     )
                     session.add(db_sym)
                     session.flush()  # Get ID
                     local_symbol_map[sym.name] = db_sym.id
+
+                # Process Routes (New)
+                from agentic_doc.db.schema import Route
+                
+                for route in result.routes:
+                    # Resolve view_func to symbol_id
+                    # 1. Check if defined in this file
+                    target_symbol = session.exec(
+                        select(Symbol)
+                        .where(Symbol.file_id == db_file.id)
+                        .where(Symbol.name.like(f"%{route.view_func}"))
+                    ).first()
+                    
+                    # 2. If not, check if it's an import (Reference)
+                    if not target_symbol:
+                        # Find import reference
+                        import_ref = session.exec(
+                            select(Reference)
+                            .where(Reference.source_symbol_id == None) # Top-level import
+                            .where(Reference.reference_type == "IMPORT")
+                            # This is hard because Reference doesn't store the alias name directly in a queryable way easily
+                            # But we can try to match target_symbol
+                        ).all()
+                        
+                        # Simplified resolution: Just try to find a symbol with this name globally (risky but works for unique names)
+                        # Better: Look for a symbol whose name ends with the view_func
+                        # Even better: The analyzer should have resolved the import.
+                        
+                        # Let's try to find ANY symbol with this name.
+                        # If multiple, pick one? Or skip?
+                        # For "snowflake_data", it's likely unique enough or we pick the one in 'views.py'
+                        
+                        candidates = session.exec(
+                            select(Symbol).where(Symbol.name.like(f"%{route.view_func}"))
+                        ).all()
+                        
+                        if candidates:
+                            target_symbol = candidates[0] # Best effort
+                    
+                    if target_symbol:
+                        db_route = Route(
+                            path=route.path,
+                            method=route.method,
+                            symbol_id=target_symbol.id
+                        )
+                        session.add(db_route)
 
                 # Store references for later resolution
                 for ref in result.references:
